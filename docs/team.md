@@ -6,7 +6,7 @@ title:  Team
 # {{ page.title }}
 
 
-## Kevin
+## Kevin Wang
 ***UCI Net ID***: wangkc2
 
 ## USER 2
