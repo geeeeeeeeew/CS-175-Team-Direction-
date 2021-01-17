@@ -10,7 +10,7 @@ title:  Team
 ***UCI Net ID***: wangkc2
 
 ## USER 2
-***UCI Net ID***: ucinetid2
+***UCI Net ID***: jethai
 
 ## Gweneth
 ***UCI Net ID***: yuejung
