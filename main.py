@@ -9,7 +9,10 @@ if __name__ == "__main__":
         try:
             command = Command(record_audio())
             print("raw_text", command.raw_text)
-            print("coreference resolution", command.doc._.coref_resolved)
+            print("doc object", end=' ')
+            for token in command.doc:
+                print(token.text, end =' ')
+            print()
         except UnknownValueError:
             print("Cannot recognize audio")
             continue
