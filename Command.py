@@ -15,6 +15,8 @@ nlp = spacy.load('en_core_web_sm') #use small sized english model
 nlp.add_pipe(nlp.create_pipe('merge_noun_chunks'))
 neuralcoref.add_to_pipe(nlp)
 
+stopwords = ['a', 'an', 'the']
+
 class Command:
     def __init__(self, raw_text):
         self.raw_text = raw_text
@@ -42,7 +44,7 @@ class Command:
         parseList = []
         for token in self.doc:
             dobjs = []
-            pair = {token.text: dobjs}
+            pair = {token.lemma_: dobjs}
             if token.pos_ == 'VERB': 
                 for child in token.children:
                     if child.pos_ == 'NOUN' or child.dep_ == 'dobj': #verb then noun
@@ -55,13 +57,13 @@ class Command:
                             if p.pos_ == 'NOUN':
                                 dobjs.append(p.text)
                 parseList.append(pair)
-        
+
         #TODO filter parse
         #TODO search similarty for supported actions
         return parseList
 
     #filter useless words from object list
-    def filter(self):
+    def filter(self, parseList):
         pass
 
     #check similiarty of action
