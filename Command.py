@@ -12,30 +12,36 @@ import neuralcoref
 #Processing POS TAGGING, rule based matching, entity recognition (Proper Nouns), lemmatization (reduce words to their base playing -> play)
 
 nlp = spacy.load('en_core_web_sm') #use small sized english model
+nlp.Defaults.stop_words |= {'a','an','the', 'to'} #add stop words to default set
 nlp.add_pipe(nlp.create_pipe('merge_noun_chunks'))
+nlp.add_pipe(nlp.create_pipe('merge_entities'))
 neuralcoref.add_to_pipe(nlp)
 
-stopwords = ['a', 'an', 'the']
 
 class Command:
-    def __init__(self, raw_text):
-        self.raw_text = raw_text
-        self.doc = nlp(raw_text)
+    filterWords = nlp.Defaults.stop_words #static class atribute
+    filterWords |= {'a','an','the', 'to'} #add to filter word set
+
+    def __init__(self, rawText):
+        self.rawText = rawText
+        self.doc = nlp(rawText)
         if self.doc._.has_coref:
             self.doc = nlp(self.doc._.coref_resolved)
-
+    
     #helper function for parse() used to get conjunctive sentence/ compound words
     #ie Find a sheep, horse, and cow -> [sheep, horse, cow]
     def parse_conj(self, dobj):
         objList = []
         for child in dobj.children:
-            print(child.text)
+            #print("parse conjunction", child.text)
             if child.pos_ == 'NOUN' and (child.dep_ == 'appos' or child.dep_ == 'conj'):
                 objList.append(child.text)
                 objList += self.parse_conj(child)
                 break
-            elif child.dep_ == 'compound':
-                objList.append(child.text + ' ' + child.head.text)
+            elif child.pos_ == 'X' and child.dep_ == 'conj': #compound noun case because compound nouns arent merged in chunks for some reason :(
+                objList += self.parse_conj(child)
+            elif child.pos_ == 'NOUN' and child.dep_ == 'compound':
+                objList.append(child.text +" " + child.head.text)
         return objList
         
     #Parses doc object and returns a list of dicts. Each dict's key is the verb and the value a list of objects the verb is acting on
@@ -48,7 +54,8 @@ class Command:
             if token.pos_ == 'VERB': 
                 for child in token.children:
                     if child.pos_ == 'NOUN' or child.dep_ == 'dobj': #verb then noun
-                        dobjs.append(child.text)
+                        if child.pos_ != 'X':
+                            dobjs.append(child.text)
                         objList = self.parse_conj(child) #check for conjunctions
                         if objList:
                             dobjs += objList
@@ -57,14 +64,17 @@ class Command:
                             if p.pos_ == 'NOUN':
                                 dobjs.append(p.text)
                 parseList.append(pair)
-
-        #TODO filter parse
+        self.filter(parseList)
         #TODO search similarty for supported actions
         return parseList
 
     #filter useless words from object list
     def filter(self, parseList):
-        pass
+        for i, pair in enumerate(parseList):
+            for k in pair.keys():
+                for j,obj in enumerate(pair[k]):
+                        filteredString = ' '.join([word for word in obj.split() if not word in Command.filterWords])
+                        parseList[i][k][j] = filteredString
 
     #check similiarty of action
     def similarity(self, foo, bar):
