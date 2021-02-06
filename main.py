@@ -7,16 +7,17 @@ from speech_recognition import RequestError
 if __name__ == "__main__":
     while True:
         try:
-            command = Command("Steve has to " + record_audio()) 
+            command =  record_audio() 
+            #command = str(input("Type your command: ")) #for keyboard input, uncomment this line and comment out line 10
+            command = Command("Steve has to " + command)
             #add "steve has to" to the string so spacy understand the command better
             #ie user says "find 2 sheep" spacy parses "Steve has to find 2 sheep"
+
             print("raw_text", command.rawText)
             for token in command.doc:
                 print(token.text, end=' ')
                 print(token.dep_, token.pos_)
-            print(command.parse())
-
-            #break
+            
         except UnknownValueError:
             print("Cannot recognize audio")
             continue
@@ -28,6 +29,8 @@ if __name__ == "__main__":
         if "exit" in command.rawText:
             print("Exiting")
             break
+        
+        parseList = command.parse()
+        print(parseList)
 
-        #process text
         #execute list of commands in Malmo after processing

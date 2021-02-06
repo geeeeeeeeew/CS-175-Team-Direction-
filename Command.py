@@ -19,8 +19,7 @@ neuralcoref.add_to_pipe(nlp)
 
 class Command:
     filterWords = nlp.Defaults.stop_words #static class atribute
-    filterWords |= {'a','an','the', 'to'} #add to filter word set
-    actions = {'move': ['jump', 'walk', 'sprint']} #current supported actions
+    actions = {'move': ['jump', 'walk', 'sprint', 'crouch']} #planned supported actions for status report
     #used a dict so similarity checks for a category of actions (keys) and then searches for specfic supported actions(values)
     #reduces search to a category of actions instead the entire range of actions
 
@@ -60,10 +59,9 @@ class Command:
     def parse(self):
         parseList = []
         for token in self.doc[3:]:
-            print(token.text)
-            dobjs = []
-            pair = {token.lemma_: dobjs}
             if token.pos_ == 'VERB': 
+                dobjs = []
+                pair = {token.lemma_: dobjs}
                 for child in token.children:
                     if child.pos_ == 'NOUN' or child.dep_ == 'dobj': #verb then noun
                         dobjs.append(self.check_adj(child)) # need to check for adj noun chunks do not pick up
@@ -100,15 +98,12 @@ class Command:
             if currentProb > mostSimilarProb:
                 mostSimilar = key
                 mostSimilarProb = currentProb
-
         mostSimilarProb = 0 #rest max prob 
-
         for action in Command.actions[mostSimilar]:
             currentProb = nlp(action).similarity(doc)
             if currentProb > mostSimilarProb:
                 mostSimilar = action
                 mostSimilarProb = currentProb
-
         return mostSimilar
 
     #jump run walk
