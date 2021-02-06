@@ -11,7 +11,7 @@ import neuralcoref
 #suppot numerical commands "jump 6 times"
 #Processing POS TAGGING, rule based matching, entity recognition (Proper Nouns), lemmatization (reduce words to their base playing -> play)
 
-nlp = spacy.load('en_core_web_md') #use small sized english model
+nlp = spacy.load('en_core_web_md') #use medium sized english model
 nlp.Defaults.stop_words |= {'a','an','the', 'to'} #add stop words to default set
 nlp.add_pipe(nlp.create_pipe('merge_noun_chunks'))
 nlp.add_pipe(nlp.create_pipe('merge_entities'))
@@ -92,7 +92,8 @@ class Command:
             if currentProb > mostSimilarProb:
                 mostSimilar = key
                 mostSimilarProb = currentProb
-        mostSimilarProb
+
+        mostSimilarProb = 0 #rest max prob 
 
         for action in Command.actions[mostSimilar]:
             currentProb = nlp(action).similarity(doc)
