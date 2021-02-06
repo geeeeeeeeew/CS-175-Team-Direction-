@@ -4,14 +4,14 @@ import neuralcoref
 #installing neuralcoref:
 #pip install neuralcoref
 #pip install spacy==2.1.0
-#python -m spacy download en_core_web_sm
+#python -m spacy download en_core_web_md
 
 #check for similiaty with list of supported actions and nouns
 #possible optimization: remove ununsed pipelines in spacy
 #suppot numerical commands "jump 6 times"
 #Processing POS TAGGING, rule based matching, entity recognition (Proper Nouns), lemmatization (reduce words to their base playing -> play)
 
-nlp = spacy.load('en_core_web_sm') #use small sized english model
+nlp = spacy.load('en_core_web_md') #use small sized english model
 nlp.Defaults.stop_words |= {'a','an','the', 'to'} #add stop words to default set
 nlp.add_pipe(nlp.create_pipe('merge_noun_chunks'))
 nlp.add_pipe(nlp.create_pipe('merge_entities'))
@@ -21,6 +21,9 @@ neuralcoref.add_to_pipe(nlp)
 class Command:
     filterWords = nlp.Defaults.stop_words #static class atribute
     filterWords |= {'a','an','the', 'to'} #add to filter word set
+    actions = {'move': ['jump', 'walk', 'run']} #current supported actions
+    #used a dict so similarity checks for a category of actions (keys) then searches for specfic supported actions(values)
+    #reduces search to a category of actions instead a range of actions
 
     def __init__(self, rawText):
         self.rawText = rawText
@@ -64,18 +67,49 @@ class Command:
                             if p.pos_ == 'NOUN':
                                 dobjs.append(p.text)
                 parseList.append(pair)
+        print("PARSELIST BEFORE FILTER ->", parseList)
         self.filter(parseList)
-        #TODO search similarty for supported actions
+        print("PARSELIST AFTER FILTER ->", parseList)
+        parseList = self.similarity(parseList)
+        print("PARSELIST AFTER SIMILARITY ->", parseList)
         return parseList
 
-    #filter useless words from object list
+    #filter unnecessary words from object list
     def filter(self, parseList):
         for i, pair in enumerate(parseList):
             for k in pair.keys():
                 for j,obj in enumerate(pair[k]):
                         filteredString = ' '.join([word for word in obj.split() if not word in Command.filterWords])
                         parseList[i][k][j] = filteredString
+    
+    #helper function for similarity
+    def best_similarity(self,word):
+        mostSimilar = ""
+        mostSimilarProb = 0
+        doc = nlp(word)
+        for key in Command.actions.keys():
+            currentProb = nlp(key).similarity(doc)
+            if currentProb > mostSimilarProb:
+                mostSimilar = key
+                mostSimilarProb = currentProb
+        mostSimilarProb
 
+        for action in Command.actions[mostSimilar]:
+            currentProb = nlp(action).similarity(doc)
+            if currentProb > mostSimilarProb:
+                mostSimilar = action
+                mostSimilarProb = currentProb
+
+        return mostSimilar
+
+    #jump run walk
     #check similiarty of action
-    def similarity(self, foo, bar):
-        pass
+    #only actions
+    def similarity(self, parseList):
+        newParseList = []
+        for i,pair in enumerate(parseList):
+            for k in pair.keys():
+                objList = parseList[i][k] #save old keys objList
+                newKey = self.best_similarity(k)
+                newParseList.append({newKey:objList})
+        return newParseList
