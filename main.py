@@ -7,12 +7,16 @@ from speech_recognition import RequestError
 if __name__ == "__main__":
     while True:
         try:
-            command = Command(record_audio())
-            print("raw_text", command.raw_text)
-            print("doc object", end=' ')
+            command = Command("Steve has to " + record_audio()) 
+            #add "steve has to" to the string so spacy understand the command better
+            #ie user says "find 2 sheep" spacy parses "Steve has to find 2 sheep"
+            print("raw_text", command.rawText)
             for token in command.doc:
-                print(token.text, end =' ')
-            print()
+                print(token.text, end=' ')
+                print(token.dep_, token.pos_)
+            print(command.parse())
+
+            #break
         except UnknownValueError:
             print("Cannot recognize audio")
             continue
@@ -21,7 +25,7 @@ if __name__ == "__main__":
             print("Exiting")
             break
 
-        if "exit" in command.raw_text:
+        if "exit" in command.rawText:
             print("Exiting")
             break
 

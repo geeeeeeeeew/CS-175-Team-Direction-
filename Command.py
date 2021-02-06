@@ -17,19 +17,31 @@ nlp.add_pipe(nlp.create_pipe('merge_noun_chunks'))
 nlp.add_pipe(nlp.create_pipe('merge_entities'))
 neuralcoref.add_to_pipe(nlp)
 
-
 class Command:
     filterWords = nlp.Defaults.stop_words #static class atribute
     filterWords |= {'a','an','the', 'to'} #add to filter word set
-    actions = {'move': ['jump', 'walk', 'run']} #current supported actions
-    #used a dict so similarity checks for a category of actions (keys) then searches for specfic supported actions(values)
-    #reduces search to a category of actions instead a range of actions
+    actions = {'move': ['jump', 'walk', 'sprint']} #current supported actions
+    #used a dict so similarity checks for a category of actions (keys) and then searches for specfic supported actions(values)
+    #reduces search to a category of actions instead the entire range of actions
 
     def __init__(self, rawText):
         self.rawText = rawText
         self.doc = nlp(rawText)
         if self.doc._.has_coref:
             self.doc = nlp(self.doc._.coref_resolved)
+
+    #helper function for parse() used to pick up potential undetected noun chunks
+    def check_adj(self, word):
+        newWord = word.text
+        rightChildTokens = [tok.text for tok in word.rights if tok.pos_ == "NUM" or tok.pos_ == "ADJ"]
+        leftChildTokens = [tok.text for tok in word.lefts if tok.pos_ == "NUM" or tok.pos_ == "ADJ"]
+        if rightChildTokens and leftChildTokens:
+            newWord = " ".join(leftChildTokens) + " " + word.text + " ".join(rightChildTokens)
+        elif rightChildTokens:
+            newWord =  word.text + " ".join(rightChildTokens)
+        elif leftChildTokens:
+            newWord = " ".join(leftChildTokens) + " " + word.text
+        return newWord
     
     #helper function for parse() used to get conjunctive sentence/ compound words
     #ie Find a sheep, horse, and cow -> [sheep, horse, cow]
@@ -38,39 +50,35 @@ class Command:
         for child in dobj.children:
             #print("parse conjunction", child.text)
             if child.pos_ == 'NOUN' and (child.dep_ == 'appos' or child.dep_ == 'conj'):
-                objList.append(child.text)
+                objList.append(self.check_adj(child))
                 objList += self.parse_conj(child)
                 break
-            elif child.pos_ == 'X' and child.dep_ == 'conj': #compound noun case because compound nouns arent merged in chunks for some reason :(
-                objList += self.parse_conj(child)
-            elif child.pos_ == 'NOUN' and child.dep_ == 'compound':
-                objList.append(child.text +" " + child.head.text)
         return objList
         
     #Parses doc object and returns a list of dicts. Each dict's key is the verb and the value a list of objects the verb is acting on
     #kind of buggy works on grammarly correct sentences, and mixed results on more relaxed sentences
     def parse(self):
         parseList = []
-        for token in self.doc:
+        for token in self.doc[3:]:
+            print(token.text)
             dobjs = []
             pair = {token.lemma_: dobjs}
             if token.pos_ == 'VERB': 
                 for child in token.children:
                     if child.pos_ == 'NOUN' or child.dep_ == 'dobj': #verb then noun
-                        if child.pos_ != 'X':
-                            dobjs.append(child.text)
+                        dobjs.append(self.check_adj(child)) # need to check for adj noun chunks do not pick up
                         objList = self.parse_conj(child) #check for conjunctions
                         if objList:
                             dobjs += objList
                     elif child.pos_ == 'ADP' and child.dep_ == 'prep': # prepositional phrases
                         for p in child.children:
                             if p.pos_ == 'NOUN':
-                                dobjs.append(p.text)
+                                dobjs.append(self.check_adj(p)) #need to check for adj noun chunks do not pickup
                 parseList.append(pair)
         print("PARSELIST BEFORE FILTER ->", parseList)
-        self.filter(parseList)
+        self.filter(parseList) #filtering
         print("PARSELIST AFTER FILTER ->", parseList)
-        parseList = self.similarity(parseList)
+        parseList = self.similarity(parseList) #similarity check against Command.actions
         print("PARSELIST AFTER SIMILARITY ->", parseList)
         return parseList
 
