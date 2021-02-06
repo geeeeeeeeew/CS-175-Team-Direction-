@@ -63,7 +63,7 @@ class Command:
                 dobjs = []
                 pair = {token.lemma_: dobjs}
                 for child in token.children:
-                    if child.pos_ == 'NOUN' or child.dep_ == 'dobj': #verb then noun
+                    if child.pos_ == 'NOUN' and child.dep_ == 'dobj': #verb then noun
                         dobjs.append(self.check_adj(child)) # need to check for adj noun chunks do not pick up
                         objList = self.parse_conj(child) #check for conjunctions
                         if objList:
@@ -100,7 +100,7 @@ class Command:
                 mostSimilarProb = currentProb
         mostSimilarProb = 0 #rest max prob 
         for action in Command.actions[mostSimilar]:
-            currentProb = nlp(action).similarity(doc)
+            currentProb = nlp( action).similarity(doc)
             if currentProb > mostSimilarProb:
                 mostSimilar = action
                 mostSimilarProb = currentProb
