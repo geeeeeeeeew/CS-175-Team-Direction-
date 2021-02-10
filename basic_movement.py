@@ -64,7 +64,7 @@ class BasicMovement():
                             </Inventory>
                         </AgentStart>
                         <AgentHandlers>
-                            <DiscreteMovementCommands/>
+                            <ContinuousMovementCommands/>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
                             <ObservationFromGrid>
@@ -113,21 +113,37 @@ class BasicMovement():
 
         return world_state
 
-    def move_left(self, distance=1):
-    	for i in range(distance):
-    		self.agent_host.sendCommand("strafe -1")
+    def walk_left(self, distance=1):
+    	self.agent_host.sendCommand("strafe -0.5")
+    	time.sleep(distance / 2.3)
 
-    def move_right(self, distance=1):
-    	for i in range(distance):
-    		self.agent_host.sendCommand("strafe 1")
+    def walk_right(self, distance=1):
+    	self.agent_host.sendCommand("strafe 0.5")
+    	time.sleep(distance / 2.3)
 
-    def move_forward(self, distance=1):
-    	for i in range(distance):
-    		self.agent_host.sendCommand("move 1")
+    def walk_forward(self, distance=1):
+    	self.agent_host.sendCommand("move 0.5")
+    	time.sleep(distance / 2.3)
 
-    def move_backward(self, distance=1):
-    	for i in range(distance):
-    		self.agent_host.sendCommand("move -1")
+    def walk_backward(self, distance=1):
+    	self.agent_host.sendCommand("move -0.5")
+    	time.sleep(distance / 2.3)
+
+    def run_left(self, distance=1):
+    	self.agent_host.sendCommand("strafe -1")
+    	time.sleep(distance / 4.9)
+
+    def run_right(self, distance=1):
+    	self.agent_host.sendCommand("strafe 1")
+    	time.sleep(distance / 4.9)
+
+    def run_forward(self, distance=1):
+    	self.agent_host.sendCommand("move 1")
+    	time.sleep(distance / 4.9)
+
+    def run_backward(self, distance=1):
+    	self.agent_host.sendCommand("move -1")
+    	time.sleep(distance / 4.9)
 
     def jump(self, num_jumps=1):
     	for i in range(num_jumps):
@@ -136,8 +152,12 @@ class BasicMovement():
 
 if __name__ == '__main__':
     test = BasicMovement({})
-    #test.move_left(5)
-    #test.move_right(5)
-    #test.move_forward(5)
-    #test.move_backward(5)
-    test.jump(1)
+    #test.walk_left(5)
+    #test.walk_right(5)
+    test.walk_forward(5)
+    #test.walk_backward(5)
+    #test.run_left(5)
+    #test.run_right(5)
+    #test.run_forward(5)
+    #test.run_backward(5)
+    test.jump(5)
