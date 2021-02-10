@@ -28,7 +28,7 @@ class Command:
         self.doc = nlp(rawText)
         if self.doc._.has_coref:
             self.doc = nlp(self.doc._.coref_resolved)
-
+            
     #helper function for parse() used to pick up potential undetected noun chunks
     def check_adj(self, word):
         newWord = word.text
@@ -128,3 +128,12 @@ class Command:
                 n = int(tok.text)
                 break
         return n
+    
+    #return a list of all verbs in doc
+    def extract_verb(self):
+        verb = []
+        for token in self.doc:
+            if token.pos_ == "VERB":
+                verb.append(token.text)
+        return verb
+    
