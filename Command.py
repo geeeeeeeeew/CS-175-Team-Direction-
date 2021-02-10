@@ -19,7 +19,7 @@ neuralcoref.add_to_pipe(nlp)
 
 class Command:
     filterWords = nlp.Defaults.stop_words #static class atribute
-    actions = {'move': ['jump', 'walk', 'sprint', 'crouch', 'turn']} #planned supported actions for status report
+    actions = {'move': ['jump', 'walk', 'crouch', 'turn']} #planned supported actions for status report
     #used a dict so similarity checks for a category of actions (keys) and then searches for specfic supported actions(values)
     #reduces search to a category of actions instead the entire range of actions
 
@@ -63,7 +63,8 @@ class Command:
                 dobjs = []
                 pair = {token.lemma_: dobjs}
                 for child in token.children:
-                    if child.pos_ == 'NOUN' and child.dep_ == 'dobj': #verb then noun
+                    print("CHIDLREN", child.text)
+                    if child.pos_ == 'NOUN' or child.dep_ == 'dobj': #verb then noun
                         dobjs.append(self.check_adj(child)) # need to check for adj noun chunks do not pick up
                         objList = self.parse_conj(child) #check for conjunctions
                         if objList:
