@@ -13,13 +13,13 @@ import neuralcoref
 
 nlp = spacy.load('en_core_web_md') #use medium sized english model
 nlp.Defaults.stop_words |= {'a','an','the', 'to'} #add stop words to default set
-nlp.add_pipe(nlp.create_pipe('merge_noun_chunks'))
+#nlp.add_pipe(nlp.create_pipe('merge_noun_chunks'))
 nlp.add_pipe(nlp.create_pipe('merge_entities'))
 neuralcoref.add_to_pipe(nlp)
 
 class Command:
     filterWords = nlp.Defaults.stop_words #static class atribute
-    actions = {'move': ['jump', 'walk', 'sprint', 'crouch']} #planned supported actions for status report
+    actions = {'move': ['jump', 'walk', 'sprint', 'crouch', 'turn']} #planned supported actions for status report
     #used a dict so similarity checks for a category of actions (keys) and then searches for specfic supported actions(values)
     #reduces search to a category of actions instead the entire range of actions
 
@@ -32,8 +32,8 @@ class Command:
     #helper function for parse() used to pick up potential undetected noun chunks
     def check_adj(self, word):
         newWord = word.text
-        rightChildTokens = [tok.text for tok in word.rights if tok.pos_ == "NUM" or tok.pos_ == "ADJ"]
-        leftChildTokens = [tok.text for tok in word.lefts if tok.pos_ == "NUM" or tok.pos_ == "ADJ"]
+        rightChildTokens = [tok.text for tok in word.rights if tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.dep_ == "compound"]
+        leftChildTokens = [tok.text for tok in word.lefts if tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.dep_ == "compound"]
         if rightChildTokens and leftChildTokens:
             newWord = " ".join(leftChildTokens) + " " + word.text + " ".join(rightChildTokens)
         elif rightChildTokens:
@@ -117,3 +117,13 @@ class Command:
                 newKey = self.best_similarity(k)
                 newParseList.append({newKey:objList})
         return newParseList
+
+    #takes a string, returns any numerical modifier for an object as an int
+    def parse_numerical(self, s):
+        doc = nlp(s)
+        n = 1
+        for tok in doc:
+            if tok.pos_ == "NUM":
+                n = int(tok.text)
+                break
+        return n
