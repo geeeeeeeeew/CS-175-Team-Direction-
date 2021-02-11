@@ -33,7 +33,7 @@ class Process:
         if "backward" in objList or "backwards" in objList:
             self.malmo.run_backward(distance)
             dir = 1
-        "forward" in objList or dir == 0:
+        if "forward" in objList or dir == 0:
             self.malmo.run_forward(distance)
     
     def process_turn(self, objList, command):
