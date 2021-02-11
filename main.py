@@ -11,15 +11,15 @@ if __name__ == "__main__":
     process = Process(BasicMovement({}))
     while True:
         try:
-            command =  record_audio() 
-            #command = str(input("Type your command: ")) #for keyboard input, uncomment this line and comment out line 10
-            command = Command("Steve has to " + command)
+            #command =  record_audio() 
+            command = str(input("Type your command: ")) #for keyboard input, uncomment this line and comment out line 10
+            command = Command(command)
 
             print("raw_text", command.rawText)
             for token in command.doc:
                 print(token.text, end=' ')
                 print(token.dep_, token.pos_)    
-                
+
         except UnknownValueError:
             print("Cannot recognize audio")
             continue

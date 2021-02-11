@@ -36,12 +36,11 @@ class Command:
         if self.doc._.has_coref:
             self.doc = nlp(self.doc._.coref_resolved)
 
-
     #helper function for parse() used to pick up potential undetected noun chunks
     def check_adj(self, word):
         newWord = word.text
-        rightChildTokens = [tok.lemma_ for tok in word.rights if tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.dep_ == "compound"]
-        leftChildTokens = [tok.lemma_ for tok in word.lefts if tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.dep_ == "compound"]
+        rightChildTokens = [tok.lemma_ for tok in word.rights if tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.pos_ == "ADV" or tok.dep_ == "compound"]
+        leftChildTokens = [tok.lemma_ for tok in word.lefts if tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.pos_ == "ADV" or tok.dep_ == "compound"]
         if rightChildTokens and leftChildTokens:
             newWord = " ".join(leftChildTokens) + " " + word.text + " ".join(rightChildTokens)
         elif rightChildTokens:
@@ -55,11 +54,10 @@ class Command:
     def parse_conj(self, dobj):
         objList = []
         for child in dobj.children:
-            #print("parse conjunction", child.text)
-            if child.pos_ == 'NOUN' and (child.dep_ == 'appos' or child.dep_ == 'conj'):
+            print("parse conjunction", child.text)
+            if (child.pos_ == 'NOUN' or child.pos_ == 'ADV') and (child.dep_ == 'appos' or child.dep_ == 'conj'):
                 objList.append(self.check_adj(child))
                 objList += self.parse_conj(child)
-                break
         return objList
         
     #Parses doc object and returns a list of dicts. Each dict's key is the verb and the value a list of words that has
@@ -67,7 +65,7 @@ class Command:
     #kind of buggy works on grammarly correct sentences, and mixed results on more relaxed sentences
     def parse(self):
         parseList = []
-        for token in self.doc[3:]:
+        for token in self.doc:
             if token.pos_ == 'VERB': 
                 dobjs = []
                 pair = {token.lemma_: dobjs}
@@ -80,15 +78,22 @@ class Command:
                             dobjs += objList
                     elif child.pos_ == 'ADP' and child.dep_ == 'prep': # prepositional phrases
                         for p in child.children:
+                            print("prep", p.text)
                             if p.pos_ == 'NOUN':
-                                dobjs.append(self.check_adj(p)) #need to check for adj noun chunks do not pickup
+                                dobjs.append(self.check_adj(p)) # need to check for adj noun chunks do not pick up
+                                objList = self.parse_conj(p) #check for conjunctions
+                                if objList:
+                                    dobjs += objList
                     elif (child.pos_ == 'ADV' or child.dep_ == 'advmod') and not child.text in Command.filterWords: #add adverbs
-                            dobjs.append(child.lemma_)
+                        dobjs.append(child.lemma_)
+                        objList = self.parse_conj(child) #check for conjunctions
+                        if objList:
+                            dobjs += objList
                 parseList.append(pair)
         print("PARSELIST BEFORE FILTER ->", parseList)
         self.filter(parseList) #filtering
         print("PARSELIST AFTER FILTER ->", parseList)
-        parseList = self.similarity(parseList) #similarity check against Command.actions
+        #parseList = self.similarity(parseList) #similarity check against Command.actions
         print("PARSELIST AFTER SIMILARITY ->", parseList)
         return parseList
 
