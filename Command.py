@@ -24,8 +24,15 @@ class Command:
     #reduces search to a category of actions instead the entire range of actions
 
     def __init__(self, rawText):
-        self.rawText = rawText
-        self.doc = nlp(rawText)
+        numerical = {'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four':'4', 'five': '5', 'six':'6', 'seven': '7', 'eight':'8', 'nine': '9'}
+        wordList = []
+        for word in rawText.split():
+            if word in numerical.keys():
+                wordList.append(numerical[word])
+            else:
+                wordList.append(word)
+        self.rawText = " ".join(wordList)
+        self.doc = nlp(self.rawText)
         if self.doc._.has_coref:
             self.doc = nlp(self.doc._.coref_resolved)
             
