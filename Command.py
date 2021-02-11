@@ -147,5 +147,5 @@ class Command:
                     obj.append(token.text)
             if token.pos_ == "NUM":
                 obj.append(token.text)
-                
+        return obj
    
