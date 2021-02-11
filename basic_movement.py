@@ -28,13 +28,11 @@ class BasicMovement():
             exit(1)
 
     def get_mission_xml(self):
-    	return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+        return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
                     <About>
-                        <Summary>Basic Movement</Summary>
+                        <Summary>Text-To-Steve</Summary>
                     </About>
-
                     <ServerSection>
                         <ServerInitialConditions>
                             <Time>
@@ -54,11 +52,10 @@ class BasicMovement():
                             <ServerQuitWhenAnyAgentFinishes/>
                         </ServerHandlers>
                     </ServerSection>
-
                     <AgentSection mode="Survival">
-                        <Name>CS175DiamondCollector</Name>
+                        <Name>Text-To-Steve</Name>
                         <AgentStart>
-                            <Placement x="0.5" y="2" z="0.5" pitch="45" yaw="0"/>
+                            <Placement x="0.5" y="2" z="0.5" yaw="0"/>
                             <Inventory>
                                 <InventoryItem slot="0" type="diamond_pickaxe"/>
                             </Inventory>
@@ -114,50 +111,53 @@ class BasicMovement():
         return world_state
 
     def walk_left(self, distance=1):
-    	self.agent_host.sendCommand("strafe -0.5")
-    	time.sleep(distance / 2.3)
+        self.agent_host.sendCommand("strafe -0.5")
+        time.sleep(distance / 2.3)
+        self.agent_host.sendCommand("strafe 0")
 
     def walk_right(self, distance=1):
-    	self.agent_host.sendCommand("strafe 0.5")
-    	time.sleep(distance / 2.3)
+        self.agent_host.sendCommand("strafe 0.5")
+        time.sleep(distance / 2.3)
+        self.agent_host.sendCommand("strafe 0")
 
     def walk_forward(self, distance=1):
-    	self.agent_host.sendCommand("move 0.5")
-    	time.sleep(distance / 2.3)
+        self.agent_host.sendCommand("move 0.5")
+        time.sleep(distance / 2.3)
+        self.agent_host.sendCommand("move 0")
 
     def walk_backward(self, distance=1):
-    	self.agent_host.sendCommand("move -0.5")
-    	time.sleep(distance / 2.3)
+        self.agent_host.sendCommand("move -0.5")
+        time.sleep(distance / 2.3)
+        self.agent_host.sendCommand("move 0")
 
     def run_left(self, distance=1):
-    	self.agent_host.sendCommand("strafe -1")
-    	time.sleep(distance / 4.9)
+        self.agent_host.sendCommand("strafe -1")
+        time.sleep(distance / 4.9)
+        self.agent_host.sendCommand("strafe 0")
 
     def run_right(self, distance=1):
-    	self.agent_host.sendCommand("strafe 1")
-    	time.sleep(distance / 4.9)
+        self.agent_host.sendCommand("strafe 1")
+        time.sleep(distance / 4.9)
+        self.agent_host.sendCommand("strafe 0")
 
     def run_forward(self, distance=1):
-    	self.agent_host.sendCommand("move 1")
-    	time.sleep(distance / 4.9)
+        self.agent_host.sendCommand("move 1")
+        time.sleep(distance / 4.9)
+        self.agent_host.sendCommand("move 0")
 
     def run_backward(self, distance=1):
-    	self.agent_host.sendCommand("move -1")
-    	time.sleep(distance / 4.9)
+        self.agent_host.sendCommand("move -1")
+        time.sleep(distance / 4.9)
+        self.agent_host.sendCommand("move 0")
+
+    def crouch(self, length = 2):
+        self.agent_host.sendCommand("crouch 1")
+        time.sleep(length)
+        self.agent_host.sendCommand("crouch 0")
 
     def jump(self, num_jumps=1):
-    	for i in range(num_jumps):
-    		self.agent_host.sendCommand("jump 1")
-    	self.agent_host.sendCommand("jump 0")
+        for i in range(num_jumps):
+            self.agent_host.sendCommand("jump 1")
+            time.sleep(0.6)
+        self.agent_host.sendCommand("jump 0")
 
-if __name__ == '__main__':
-    test = BasicMovement({})
-    #test.walk_left(5)
-    #test.walk_right(5)
-    test.walk_forward(5)
-    #test.walk_backward(5)
-    #test.run_left(5)
-    #test.run_right(5)
-    #test.run_forward(5)
-    #test.run_backward(5)
-    test.jump(5)

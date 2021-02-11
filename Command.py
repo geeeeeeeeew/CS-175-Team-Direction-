@@ -19,7 +19,7 @@ neuralcoref.add_to_pipe(nlp)
 
 class Command:
     filterWords = nlp.Defaults.stop_words #static class atribute
-    actions = {'move': ['jump', 'walk', 'crouch', 'turn']} #planned supported actions for status report
+    actions = {'move': ['jump', 'walk', 'crouch', 'turn', 'run']} #planned supported actions for status report
     #used a dict so similarity checks for a category of actions (keys) and then searches for specfic supported actions(values)
     #reduces search to a category of actions instead the entire range of actions
 
@@ -35,12 +35,13 @@ class Command:
         self.doc = nlp(self.rawText)
         if self.doc._.has_coref:
             self.doc = nlp(self.doc._.coref_resolved)
-            
+
+
     #helper function for parse() used to pick up potential undetected noun chunks
     def check_adj(self, word):
         newWord = word.text
-        rightChildTokens = [tok.text for tok in word.rights if tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.dep_ == "compound"]
-        leftChildTokens = [tok.text for tok in word.lefts if tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.dep_ == "compound"]
+        rightChildTokens = [tok.lemma_ for tok in word.rights if tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.dep_ == "compound"]
+        leftChildTokens = [tok.lemma_ for tok in word.lefts if tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.dep_ == "compound"]
         if rightChildTokens and leftChildTokens:
             newWord = " ".join(leftChildTokens) + " " + word.text + " ".join(rightChildTokens)
         elif rightChildTokens:
@@ -61,7 +62,8 @@ class Command:
                 break
         return objList
         
-    #Parses doc object and returns a list of dicts. Each dict's key is the verb and the value a list of objects the verb is acting on
+    #Parses doc object and returns a list of dicts. Each dict's key is the verb and the value a list of words that has
+    #an important dependence on the verb
     #kind of buggy works on grammarly correct sentences, and mixed results on more relaxed sentences
     def parse(self):
         parseList = []
@@ -80,6 +82,8 @@ class Command:
                         for p in child.children:
                             if p.pos_ == 'NOUN':
                                 dobjs.append(self.check_adj(p)) #need to check for adj noun chunks do not pickup
+                    elif (child.pos_ == 'ADV' or child.dep_ == 'advmod') and not child.text in Command.filterWords: #add adverbs
+                            dobjs.append(child.lemma_)
                 parseList.append(pair)
         print("PARSELIST BEFORE FILTER ->", parseList)
         self.filter(parseList) #filtering
@@ -131,28 +135,8 @@ class Command:
         doc = nlp(s)
         n = 1
         for tok in doc:
+            print(tok.text, tok.pos_)
             if tok.pos_ == "NUM":
                 n = int(tok.text)
                 break
         return n
-    
-    #return a list of all verbs in doc
-    def extract_verb(self):
-        verb = []
-        for token in self.doc:
-            if token.pos_ == "VERB":
-                verb.append(token.text)
-        return verb
-    
-    #return a list of objects including nouns to a verb and number to a verb, 
-    # i.e 6 in jump 6 times and cow, sheep in find a cow and sheep
-    def extract_obj(self):
-        obj = []
-        for token in self.doc:
-            if token.pos_ == "NOUN":
-                if token.dep_ == "dobj" or token.dep_ == "conj":
-                    obj.append(token.text)
-            if token.pos_ == "NUM":
-                obj.append(token.text)
-        return obj
-   
