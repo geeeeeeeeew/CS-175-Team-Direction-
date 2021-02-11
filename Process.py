@@ -49,11 +49,7 @@ class Process:
                 elif verb == "turn":
                     if "left" in objList:
                         pass
-                    elif "right" in objList:
-                        pass
-                    elif "backwards" in objList:
-                        pass
-                    else:
+                    if "right" in objList:
                         pass
                 elif verb == "jump":
                     num_jumps = max([command.parse_numerical(obj) for obj in objList])
