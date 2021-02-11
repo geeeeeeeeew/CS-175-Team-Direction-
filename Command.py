@@ -137,3 +137,15 @@ class Command:
                 verb.append(token.text)
         return verb
     
+    #return a list of objects including nouns to a verb and number to a verb, 
+    # i.e 6 in jump 6 times and cow, sheep in find a cow and sheep
+    def extract_obj(self):
+        obj = []
+        for token in self.doc:
+            if token.pos_ == "NOUN":
+                if token.dep_ == "dobj" or token.dep_ == "conj":
+                    obj.append(token.text)
+            if token.pos_ == "NUM":
+                obj.append(token.text)
+                
+   
