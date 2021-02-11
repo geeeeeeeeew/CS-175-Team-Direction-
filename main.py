@@ -10,8 +10,8 @@ if __name__ == "__main__":
     move = BasicMovement({})
     while True:
         try:
-            #command =  record_audio() 
-            command = str(input("Type your command: ")) #for keyboard input, uncomment this line and comment out line 10
+            command =  record_audio() 
+            #command = str(input("Type your command: ")) #for keyboard input, uncomment this line and comment out line 10
             command = Command("Steve has to " + command)
             #add "steve has to" to the string so spacy understand the command better
             #ie user says "find 2 sheep" spacy parses "Steve has to find 2 sheep"
@@ -40,14 +40,32 @@ if __name__ == "__main__":
                 if not objList: #no dobj specified case
                     objList = [""]
                 for obj in objList:
-                    #if verb == 'walk' and "left" in obj:
+                    #planned supported commands crouch, turn, walk, run, jump
                     if verb == "walk":
-                        print("WALK", command.parse_numerical(obj))
-                        move.move_forward(distance = command.parse_numerical(obj))
+                        if "left" in objList:
+                            pass
+                        elif "right" in objList:
+                            pass
+                        else:
+                            print("WALK", command.parse_numerical(obj))
+                            move.move_forward(distance = command.parse_numerical(obj))
+                    elif verb == "run":
+                        if "left" in objList:
+                            pass
+                        elif "right" in objList:
+                            pass
+                        else:
+                            pass
+                    elif verb == "turn":
+                        if "left" in objList:
+                            pass
+                        elif "right" in objList:
+                            pass
+                        else:
+                            pass
                     elif verb == "jump":
                         print("JUMP")
                         print(command.parse_numerical(obj))
                         move.jump(num_jumps=command.parse_numerical(obj))
-        time.sleep(.2)
-
-        #execute list of commands in Malmo after processing
+                    elif verb == "crouch":
+                        pass
