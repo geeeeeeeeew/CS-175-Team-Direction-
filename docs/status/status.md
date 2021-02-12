@@ -19,7 +19,7 @@ We will evaluate the success of our project based on the complexity of the comma
 ## Remaining Goals and Challenges
 
 ## Resources Used
-### SpeechRecognition
+- SpeechRecognition
 library for performing speech recognition\
 https://pypi.org/project/SpeechRecognition/
 - Pyaudio
