@@ -26,8 +26,8 @@ https://pypi.org/project/SpeechRecognition/
 ## Pyaudio
 record audio input from microphone
 ## Spacy
-information extraction and natural language understanding 
-https://spacy.io/usage/spacy-101
+information extraction and natural language understanding \
+https://spacy.io/usage/spacy-10z
 ## NeuralCoref
 a pipeline extension for spaCy 2.1+ which annotates and resolves coreference clusters using a neural network
 https://github.com/huggingface/neuralcoref/pulls
