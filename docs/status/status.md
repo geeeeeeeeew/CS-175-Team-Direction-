@@ -7,9 +7,9 @@ title:  Status
 The main idea of our project is using Python to implement a way for the user to control the AI agent via speech. We used natural language processing to convert audio into commands, and let the agent perform all of them in Minecraft. For example, saying “kill the cow, find a goat and then move backwards for 6 steps” into a microphone would create 3 commands: "kill cow", "find goat", and "move backwards(6)", which automatically call the responding functions and let the agent to execute these commands. To accomplish this, we first converted speech to text using SpeechRecognition, and then converted the text into commands using Spacy, a library for advanced NLP, so that the agent can perform using Malmo. 
 
 ## Approach
-
-
-
+### Part 1: Speech Recognition
+### Part 2: Information Extraction and Context Understanding
+### Part 3: Command Execution in Malmo
 
 We plan to use supervised machine learning algorithms for natural language processing and text analysis, such as SVM and Neural Networks, with the support of the SpeechRecognition Library. We will also use the PyAudio library to parse microphone input into audio data that can be sent to a speech recognition API. Specifically, we are planning on using the Google Cloud Speech API to parse the audio data of user-given commands, which would then be further analyzed with the NLTK library. The agent would then execute the required tasks by calling a certain function related to the command using the Malmo platform. 
 
