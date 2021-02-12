@@ -21,6 +21,7 @@ We will evaluate the success of our project based on the complexity of the comma
 # Resources Used
 ## speechRecognition
 library for performing speech recognition
+
 https://pypi.org/project/SpeechRecognition/
 ## Pyaudio
 record audio input from microphone
