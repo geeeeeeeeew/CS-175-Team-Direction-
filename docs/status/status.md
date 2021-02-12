@@ -19,12 +19,17 @@ We will evaluate the success of our project based on the complexity of the comma
 # Remaining Goals and Challenges
 
 # Resources Used
-1. speechRecognition: library for performing speech recognition
-2. Pyaudio: record audio input from microphone
-3. Spacy: information extraction and natural language understanding 
-4. NeuralCoref: a pipeline extension for spaCy 2.1+ which annotates and resolves coreference clusters using a neural network
+## speechRecognition
+library for performing speech recognition
+https://pypi.org/project/SpeechRecognition/
+## Pyaudio
+record audio input from microphone
+## Spacy
+information extraction and natural language understanding 
+https://spacy.io/usage/spacy-101
+## NeuralCoref
+a pipeline extension for spaCy 2.1+ which annotates and resolves coreference clusters using a neural network
+https://github.com/huggingface/neuralcoref/pulls
 
-
-### resources
 
 
