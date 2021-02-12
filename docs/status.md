@@ -11,12 +11,16 @@ We plan to use supervised machine learning algorithms for natural language proce
 ### Part 1: Speech Recognition
 We used Pyaudio to record user's audio, and parsed the audio input using Google Cloud Speech API in SpeechRecognition to convert the voice commands into context. We set the energy threshold "duration" to 1 in order to recognize speech right after it starts listening. In this part, users' voice command will be converted into context and stored as a string. 
 ### Part 2: Information Extraction and Context Understanding
+
 ### Part 3: Command Execution in Malmo
 
 ## Evaluation
 We will evaluate the success of our project based on the complexity of the commands we can implement accurately and how well the agent performs tasks. There are different tiers of difficulty for commands: “walk to the right” is much easier to implement than “find and mine a diamond.” We are aiming to implement commands that are pretty complex and interact with the environment (e.g. “place down a dirt block to the left,” “take a gold ingot from the chest”), with a moonshot case being extremely complex commands that need contextual understanding (e.g. “enter the third house on the right”).
   
 ## Remaining Goals and Challenges
+- Understand More Complexed Commands
+  
+- Advanced Commands in Malmo
 
 ## Resources Used
 - SpeechRecognition
