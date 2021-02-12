@@ -30,10 +30,13 @@ We will evaluate the success of our project based on the complexity of the comma
 ## Remaining Goals and Challenges
 - Information Extraction and Filtering
   Since this project is about voice recognition, it's command that our users might add a lot of words that semantically meaningless to the content of the commands. Take a basic commands for an example: "go" is useless in the sentence "go and find a cow", so we need to filter such words. Although we are able to filter many of these words and extract the most useful ones, we still need to improve the accuracy so that our agent can execute every commands given with desirable performance.  
+
 - Understand More Complexed Commands
   At this stage, our agent is able to recognize single, multiple and synonym commands, but we haven't implemented more advanced commands, so this part needs to be further tested. 
+
 - Similarity Check
   In addition, we are encountering the problem that our agent may regard "run" and "walk" as the same command if we activate similarity check. It's hard to define similarity between words; for example, "I like pizza" and "I like flowers" both talks about one's preferences, but it's dissimiliar regard to the catergoration. 
+
 - Advanced Commands in Malmo
   After achieving the basic voice commands recognition and execution in malmo, we will work on letting agent execute more advanced commands like finding and navigation related ones. 
 ## Resources Used
