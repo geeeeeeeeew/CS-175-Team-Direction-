@@ -24,6 +24,13 @@ Create discrete or Continuous movement by changing the sleep time. Basic movemen
 ## Evaluation
 We will evaluate the success of our project based on the complexity of the commands we can implement accurately and how well the agent performs tasks. There are different tiers of difficulty for commands: “walk to the right” is much easier to implement than “find and mine a diamond.” We are aiming to implement commands that are pretty complex and interact with the environment (e.g. “place down a dirt block to the left,” “take a gold ingot from the chest”), with a moonshot case being extremely complex commands that need contextual understanding (e.g. “enter the third house on the right”).
 
+### Quantitative:
+We intend to evaluate our success quantitatively by measuring the accuracy of our voice commands. In other words, we will calculate the proportion of successfully recognized voice commands to the total number of voice commands given. We will also calculate the command completion rate (e.g. the agent actually moves north when given the command to go north, the agent can recognize objects in Minecraft successfully).
+ 
+### Qualitative:
+We intend to evaluate our success qualitatively by visually checking if the agent can actually perform commands. For example, we will check if the agent actually moves 5 blocks to the left if it is given the command “walk 5 blocks left.”
+
+
 | Single Command  | Multiple | Synonym | 
 | -------------   | ------------- |  ------------- |
 |walk to the left for 10 steps  | walk 10 steps, then run 10 steps to the right, and then jump 5 times |hurdle 5 times go forward for 10 blocks |
