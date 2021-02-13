@@ -9,7 +9,7 @@ title:  Team
 ## Kevin Wang
 ***UCI Net ID***: wangkc2
 
-## USER 2
+## Joshua Thai
 ***UCI Net ID***: jethai
 
 ## Gweneth
