@@ -52,11 +52,11 @@ We intend to evaluate our success qualitatively by visually checking if the agen
 ## Resources Used
 - [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)\
 library for performing speech recognition
-- [PyAudio](https://pypi.org/project/PyAudio/)
+- [PyAudio](https://pypi.org/project/PyAudio/)\
 record audio input from microphone
 - [spaCy](https://spacy.io/usage/spacy-10z)\
-information extraction and natural language understanding \
-- [NeuralCoref](https://github.com/huggingface/neuralcoref/pulls)
+information extraction and natural language understanding
+- [NeuralCoref](https://github.com/huggingface/neuralcoref/pulls)\
 a pipeline extension for spaCy 2.1+ which annotates and resolves coreference clusters using a neural network
 
 
