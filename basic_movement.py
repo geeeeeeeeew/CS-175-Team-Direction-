@@ -140,25 +140,25 @@ class BasicMovement():
     def run_left(self, distance=1):
     	for i in range(distance):
     		self.agent_host.sendCommand("strafe -1")
-    		time.sleep(0.2)
+    		time.sleep(0.25)
     		self.agent_host.sendCommand("strafe 0")
 
     def run_right(self, distance=1):
     	for i in range(distance):
     		self.agent_host.sendCommand("strafe 1")
-    		time.sleep(0.2)
+    		time.sleep(0.25)
     		self.agent_host.sendCommand("strafe 0")
 
     def run_forward(self, distance=1):
     	for i in range(distance):
     		self.agent_host.sendCommand("move 1")
-    		time.sleep(0.2)
+    		time.sleep(0.25)
     		self.agent_host.sendCommand("move 0")
 
     def run_backward(self, distance=1):
     	for i in range(distance):
     		self.agent_host.sendCommand("move -1")
-    		time.sleep(0.2)
+    		time.sleep(0.25)
     		self.agent_host.sendCommand("move 0")
     def jump(self, num_jumps=1):
     	for i in range(num_jumps):
