@@ -12,14 +12,14 @@ import neuralcoref
 #Processing POS TAGGING, rule based matching, entity recognition (Proper Nouns), lemmatization (reduce words to their base playing -> play)
 
 nlp = spacy.load('en_core_web_md') #use medium sized english model
-nlp.Defaults.stop_words |= {'a','an','the', 'to'} #add stop words to default set
+#nlp.Defaults.stop_words |= {'a','an','the', 'to'} 
 #nlp.add_pipe(nlp.create_pipe('merge_noun_chunks'))
-nlp.add_pipe(nlp.create_pipe('merge_entities'))
+#nlp.add_pipe(nlp.create_pipe('merge_entities'))
 neuralcoref.add_to_pipe(nlp)
 
 class Command:
-    filterWords = nlp.Defaults.stop_words #static class atribute
-    actions = {'move': ['jump', 'walk', 'crouch', 'turn', 'run']} #planned supported actions for status report
+    filterWords = {'a','an','the', 'to', 'then', 'for', 'in', 'on', 'at', 'by'} #static class atribute
+    actions = {'move': ['jump', 'walk', 'crouch', 'run']} #planned supported actions for status report
     #used a dict so similarity checks for a category of actions (keys) and then searches for specfic supported actions(values)
     #reduces search to a category of actions instead the entire range of actions
 
@@ -36,60 +36,86 @@ class Command:
         if self.doc._.has_coref:
             self.doc = nlp(self.doc._.coref_resolved)
 
+    #helper function for check_adj()
+    def check_prep(self, prep):
+        nouns = []
+        for tok in prep.children:
+            if tok.pos_ == 'NOUN':
+                print(tok.text)
+                nouns.append(tok)
+        return nouns
+        
     #helper function for parse() used to pick up potential undetected noun chunks
     def check_adj(self, word):
-        newWord = word.text
-        rightChildTokens = [tok.lemma_ for tok in word.rights if tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.pos_ == "ADV" or tok.dep_ == "compound"]
-        leftChildTokens = [tok.lemma_ for tok in word.lefts if tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.pos_ == "ADV" or tok.dep_ == "compound"]
-        if rightChildTokens and leftChildTokens:
-            newWord = " ".join(leftChildTokens) + " " + word.text + " ".join(rightChildTokens)
-        elif rightChildTokens:
-            newWord =  word.text + " ".join(rightChildTokens)
-        elif leftChildTokens:
-            newWord = " ".join(leftChildTokens) + " " + word.text
-        return newWord
+        rightTokens = []   
+        leftTokens = []     
+        for tok in word.rights:
+            if tok.pos_ == 'ADP' and tok.dep_ == 'prep':
+                for n in self.check_prep(tok):
+                    rightTokens += self.check_adj(n)
+            elif tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.pos_ == "ADV" or tok.dep_ == "compound":
+                rightTokens.append(tok.lemma_)
+
+        for tok in word.lefts:
+            if tok.pos_ == 'ADP' and tok.dep_ == 'prep':
+                for n in self.check_prep(tok):
+                    leftTokens += self.check_adj(n)
+            elif tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.pos_ == "ADV" or tok.dep_ == "compound":
+                    leftTokens.append(tok.lemma_)
+                    
+        print("check adj ->", word.text, '->', leftTokens + [word.text] + rightTokens)
+        return leftTokens + [word.text] + rightTokens
     
     #helper function for parse() used to get conjunctive sentence/ compound words
     #ie Find a sheep, horse, and cow -> [sheep, horse, cow]
-    def parse_conj(self, dobj):
+    def parse_conj(self, dobj, verb):
         objList = []
         for child in dobj.children:
-            print("parse conjunction", child.text)
-            if (child.pos_ == 'NOUN' or child.pos_ == 'ADV') and (child.dep_ == 'appos' or child.dep_ == 'conj'):
-                objList.append(self.check_adj(child))
-                objList += self.parse_conj(child)
+            print("parse conjunction ->", dobj.text, '-> ', child.text)
+            #three cases: noun+conj, adv+appos, adp+prep
+            if child.pos_ == 'NOUN' or child.pos_ == 'ADV':
+                objList.append( {verb: self.check_adj(child)} )
+                objList += self.parse_conj(child, verb) 
         return objList
-        
+    
+    #check prep function??
+
     #Parses doc object and returns a list of dicts. Each dict's key is the verb and the value a list of words that has
     #an important dependence on the verb
     #kind of buggy works on grammarly correct sentences, and mixed results on more relaxed sentences
     def parse(self):
         parseList = []
         for token in self.doc:
-            if token.pos_ == 'VERB': 
+            if token.pos_ == 'VERB':
+                print("VERB -> ", token.lemma_) 
+                print("VERB CHILDREN -> ", [c.text for c in token.children])
                 dobjs = []
                 pair = {token.lemma_: dobjs}
                 for child in token.children:
-                    print("CHIDLREN", child.text)
+                    print("VERB CHILD ->", child.text)
                     if child.pos_ == 'NOUN' or child.dep_ == 'dobj': #verb then noun
-                        dobjs.append(self.check_adj(child)) # need to check for adj noun chunks do not pick up
-                        objList = self.parse_conj(child) #check for conjunctions
+                        print("NOUN CASE")
+                        dobjs += self.check_adj(child)
+                        objList = self.parse_conj(child, token.lemma_) #check for conjunctions
                         if objList:
-                            dobjs += objList
+                            parseList += objList
                     elif child.pos_ == 'ADP' and child.dep_ == 'prep': # prepositional phrases
+                        print("PREP PHRASE CASE")
                         for p in child.children:
                             print("prep", p.text)
                             if p.pos_ == 'NOUN':
-                                dobjs.append(self.check_adj(p)) # need to check for adj noun chunks do not pick up
-                                objList = self.parse_conj(p) #check for conjunctions
+                                dobjs += self.check_adj(p) 
+                                objList = self.parse_conj(p,token.lemma_) #don't check for conjunction preps?
                                 if objList:
-                                    dobjs += objList
+                                    parseList += objList
                     elif (child.pos_ == 'ADV' or child.dep_ == 'advmod') and not child.text in Command.filterWords: #add adverbs
-                        dobjs.append(child.lemma_)
-                        objList = self.parse_conj(child) #check for conjunctions
+                        print("ADVERB CASE")
+                        dobjs += (self.check_adj(child))
+                        objList = self.parse_conj(child, token.lemma_) #check for conjunctions
                         if objList:
-                            dobjs += objList
+                            parseList += objList
                 parseList.append(pair)
+
         print("PARSELIST BEFORE FILTER ->", parseList)
         self.filter(parseList) #filtering
         print("PARSELIST AFTER FILTER ->", parseList)
@@ -109,15 +135,15 @@ class Command:
     def best_similarity(self,word):
         mostSimilar = ""
         mostSimilarProb = 0
-        doc = nlp(word)
+        doc = nlp("Steve has to " + word)
         for key in Command.actions.keys():
-            currentProb = nlp(key).similarity(doc)
+            currentProb = nlp("Steve has to " + key).similarity(doc)
             if currentProb > mostSimilarProb:
                 mostSimilar = key
                 mostSimilarProb = currentProb
         mostSimilarProb = 0 #rest max prob 
         for action in Command.actions[mostSimilar]:
-            currentProb = nlp( action).similarity(doc)
+            currentProb = nlp("Steve has to " + action).similarity(doc)
             if currentProb > mostSimilarProb:
                 mostSimilar = action
                 mostSimilarProb = currentProb
