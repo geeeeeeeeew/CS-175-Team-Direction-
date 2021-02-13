@@ -165,6 +165,11 @@ class BasicMovement():
     		self.agent_host.sendCommand("jump 1")
     		time.sleep(0.58)
     	self.agent_host.sendCommand("jump 0")
+   
+    def crouch(self, length = 2):
+        self.agent_host.sendCommand("crouch 1")
+        time.sleep(length)
+        self.agent_host.sendCommand("crouch 0")
 
 if __name__ == '__main__':
     test = BasicMovement({})
