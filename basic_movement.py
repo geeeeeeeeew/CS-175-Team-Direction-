@@ -11,13 +11,25 @@ import json
 import numpy as np
 from numpy.random import randint
 
+spawnMobs = "<DrawEntity x='6' y='2' z='6' type='Pig'/>" + \
+			"<DrawEntity x='6' y='2' z='-6' type='Cow'/>" + \
+			"<DrawEntity x='-6' y='2' z='6' type='Llama'/>" + \
+			"<DrawEntity x='-6' y='2' z='-6' type='PolarBear'/>" 
+
+spawnBlocks = "<DrawBlock x='8' y='2' z='3' type='log' variant='oak'/>" + \
+			"<DrawBlock x='8' y='3' z='3' type='log' variant='oak'/>" + \
+			"<DrawBlock x='8' y='4' z='3' type='log' variant='oak'/>" + \
+			"<DrawBlock x='-7' y='2' z='14' type='lapis_ore'/>" + \
+			"<DrawBlock x='12' y='2' z='-5' type='iron_ore'/>" + \
+			"<DrawBlock x='-4' y='2' z='-9' type='coal_ore'/>"
+
 class BasicMovement():
 
     def __init__(self, env_config):  
         # Static Parameters
-        self.size = 50
+        self.size = 100
 
-        # Malmo Parameters
+        # Malmo Parametersa
         self.agent_host = MalmoPython.AgentHost()
         world_state = self.init_malmo()
         try:
@@ -48,9 +60,11 @@ class BasicMovement():
                             <DrawingDecorator>''' + \
                                 "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='air'/>".format(-self.size, self.size, -self.size, self.size) + \
                                 "<DrawCuboid x1='{}' x2='{}' y1='1' y2='1' z1='{}' z2='{}' type='stone'/>".format(-self.size, self.size, -self.size, self.size) + \
+                                spawnMobs + \
                                 '''<DrawBlock x='0'  y='2' z='0' type='air' />
-                                <DrawBlock x='0'  y='1' z='0' type='melon_block' />
-                            </DrawingDecorator>
+                                <DrawBlock x='0'  y='1' z='0' type='melon_block' />''' + \
+                                spawnBlocks + \
+                            '''</DrawingDecorator>
                             <ServerQuitWhenAnyAgentFinishes/>
                         </ServerHandlers>
                     </ServerSection>
@@ -140,36 +154,31 @@ class BasicMovement():
     def run_left(self, distance=1):
     	for i in range(distance):
     		self.agent_host.sendCommand("strafe -1")
-    		time.sleep(0.25)
+    		time.sleep(0.2)
     		self.agent_host.sendCommand("strafe 0")
 
     def run_right(self, distance=1):
     	for i in range(distance):
     		self.agent_host.sendCommand("strafe 1")
-    		time.sleep(0.25)
+    		time.sleep(0.2)
     		self.agent_host.sendCommand("strafe 0")
 
     def run_forward(self, distance=1):
     	for i in range(distance):
     		self.agent_host.sendCommand("move 1")
-    		time.sleep(0.25)
+    		time.sleep(0.2)
     		self.agent_host.sendCommand("move 0")
 
     def run_backward(self, distance=1):
     	for i in range(distance):
     		self.agent_host.sendCommand("move -1")
-    		time.sleep(0.25)
+    		time.sleep(0.2)
     		self.agent_host.sendCommand("move 0")
     def jump(self, num_jumps=1):
     	for i in range(num_jumps):
     		self.agent_host.sendCommand("jump 1")
     		time.sleep(0.58)
     	self.agent_host.sendCommand("jump 0")
-   
-    def crouch(self, length = 2):
-        self.agent_host.sendCommand("crouch 1")
-        time.sleep(length)
-        self.agent_host.sendCommand("crouch 0")
 
 if __name__ == '__main__':
     test = BasicMovement({})
