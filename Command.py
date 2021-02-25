@@ -30,7 +30,7 @@ class Command:
         self.doc = nlp(self.rawText)
         if self.doc._.has_coref:
             self.doc = nlp(self.doc._.coref_resolved)
-
+    
     #helper function for check_adj()
     def check_prep(self, prep):
         nouns = []
@@ -43,14 +43,14 @@ class Command:
     def check_adj(self, word):
         adj = []     
         for tok in word.children:
-            if tok.pos_ == 'ADP' and tok.dep_ == 'prep':
+            if tok.dep_ == 'prep':
                 for n in self.check_prep(tok):
                     adj += self.check_adj(n)
             elif tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.pos_ == "ADV" or tok.dep_ == "compound":
-                    adj.append((tok.lemma_, tok.pos_))
+                    adj.append(tok)
 
         print("check adj ->", word.text, '->', adj + [word.text])
-        return adj + [(word.text, word.pos_)]
+        return adj + [word]
     
     #helper function for parse() used to get conjunctive sentence/ compound words
     #ie Find a sheep, horse, and cow -> [sheep, horse, cow]
@@ -63,9 +63,7 @@ class Command:
                 objList += self.parse_conj(child, verb)  #check if there is connecting to found noun/adv
         return objList
     
-    #Parses doc object and returns a list of dicts. Each dict's key is the verb and the value a list of 2 tuples
-    #each 2 tuple has an important dependence on the verb
-    #first index is the word itself the second index is the word's POS
+    #Parses doc object and returns a list of dicts. Each dict's key is the verb and the value a list of tokens
     #kind of buggy works on grammarly correct sentences, and mixed results on more relaxed sentences
     def parse(self):
         parseList = []

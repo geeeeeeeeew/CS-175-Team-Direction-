@@ -10,9 +10,9 @@ class Process:
     #POS is a list of part of speches wish to find 
     def find_obj(self, objList, pos = ['NOUN', 'ADV', 'ADJ']):
         words = []
-        for pair in objList:
-            if pair[1] in pos:
-                words.append(pair[0])
+        for tok in objList:
+            if tok.pos_ in pos:
+                words.append(tok)
         return words
     
     #wrapper function for find_obj use this to parse how many times to do a command
@@ -21,6 +21,12 @@ class Process:
         if numList:
             return max([int(i) for i in numList])
         return None
+    
+    def check_tokList(self, tokList, str):
+        for tok in tokList:
+            if tok.lemma_ == "str":
+                return True
+        return False
 
     def process_walk(self, objList, command):
         direction = self.find_obj(objList) 
@@ -30,13 +36,13 @@ class Process:
         print("Distance ->", distance)
         print("Direction ->", direction)
 
-        if "left" in direction:
+        if self.check_tokList(direction, "left"):
             print("walk left")
             self.malmo.walk_left(distance)
-        elif "right" in direction:
+        elif self.check_tokList(direction, "right"):
             print("walk right")
             self.malmo.walk_right(distance)
-        elif "backward" in direction or "backwards" in direction:
+        elif self.check_tokList(direction, "backward") or self.check_tokList(direction, "backwards"):
             print("walk back")
             self.malmo.walk_backward(distance)
         else : 
@@ -51,13 +57,13 @@ class Process:
         print("Distance ->", distance)
         print("Direction ->", direction)
 
-        if "left" in direction:
+        if self.check_tokList(direction, "left"):
             self.malmo.run_left(distance)
             print('run left')
-        elif "right" in direction:
+        elif self.check_tokList(direction, "right"):
             self.malmo.run_right(distance)
             print('run right')
-        elif "backward" in direction or "backwards" in direction:
+        elif self.check_tokList(direction, "backward") or self.check_tokList(direction, "backwards"):
             self.malmo.run_backward(distance)
             print('run backwards')
         else:
@@ -99,14 +105,13 @@ class Process:
 
         if entity:
             print("find")
-            self.malmo.find_entity(entity[0], times)
+            self.malmo.find_entity(entity[0].lemma_, times)
         else:
             print('no entity specified')
 
     #the basic flow is to iterate through all the dicts parseList contains
     #then process the objList ties to the verb
     #depending on the verb, process the objlist differently
-    #for example input is "walk to the left 5 blocks" -> [{walk:[('left', 'ADJ'), ('5, 'NUM'), ('blocks', 'NOUN') ]}] -> process_walk(objList, command) -> processes the objlist to dir = 'left' , dis = 5 -> sends to malmo
     def process_command(self, command):
         parseList = command.parse()
         for c in parseList:
