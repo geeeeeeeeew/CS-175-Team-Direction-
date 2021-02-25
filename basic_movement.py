@@ -23,8 +23,8 @@ class BasicMovement():
 
     def __init__(self, env_config):  
         # Static Parameters
-        self.size = 25
-        self.mobCount = 5   #amount of mobs per mob type
+        self.size = 35
+        self.mobCount = 3   #amount of mobs per mob type
         self.block = 0.001
         # Malmo Parametersa
         self.agent_host = MalmoPython.AgentHost()
@@ -75,7 +75,7 @@ class BasicMovement():
                     <AgentSection mode="Survival">
                         <Name>SpeechToSteve</Name>
                         <AgentStart>
-                            <Placement x="0.5" y="2" z="0.5" pitch="45" yaw="0"/>
+                            <Placement x="0.5" y="2" z="0.5" yaw="0"/>
                             <Inventory>
                                 <InventoryItem slot="0" type="diamond_sword"/>
                                 <InventoryItem slot="1" type="diamond_pickaxe"/>
@@ -84,10 +84,11 @@ class BasicMovement():
                             </Inventory>
                         </AgentStart>
                         <AgentHandlers>
-                            <ContinuousMovementCommands/>
+                            <AbsoluteMovementCommands/>
+                            <ContinuousMovementCommands turnSpeedDegs="180"/>
                             <ObservationFromHotBar/>
                             <ObservationFromNearbyEntities>''' +\
-                                "<Range name='Entities' xrange='{}' yrange='{}' zrange='{}'/>".format(self.size/2, self.size/2, self.size/2) + \
+                                "<Range name='Entities' xrange='{}' yrange='{}' zrange='{}'/>".format(self.size, self.size, self.size) + \
                             '''</ObservationFromNearbyEntities>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
@@ -148,35 +149,106 @@ class BasicMovement():
         observation = json.loads(lastWorldState.observations[-1].text)
         return observation[obs]
 
-    def find_entity(self, entity, num = 1):
-        entities = self.get_worldstate('Entities')
-        for ent in entities:
-            print(ent['name'], '->', ent)
-        #search for entity
+    #get item from hotbar
+    def switch_item(self,item):
+        pass
+    
+    #find block
+    def find_block(self, block, time):
+        pass
 
+    #break block
+    def break_block(self, block, time):
+        pass
+
+    #helper function for find_entity
+    def get_entityList(self, entity):
+        entities = self.get_worldstate('Entities')
+        agent = entities[0]
+
+        targetEntities = []
+        for ent in entities:
+            if ent['name'].lower() == entity:
+                targetEntities.append(ent)
+        entityList = []     
+        for ent in targetEntities:
+            entityList.append( (ent, (math.sqrt(abs((abs(agent['x'] - ent['x']) ** 2) + (abs(agent['z'] - ent['z']) ** 2))))) )
+
+        entityList.sort(key = lambda x: x[1]) #sort by tuple second element which is the distance
+        return entityList # list of tuples where first item is ent
+
+    #FUTURE FEATURES
+    #ADD cow to the right or cow to the left
+    #add different sort methods, to the right, to the left, south, north
+    #if farthest specified then change index to -1
+    #to do this favor the cow with the lower x respective player (left) take players yaw into account 
+    #favor teh cow with the higher x respective to the player (right)
+    #favor the cow with the lower z respective to the palyer (north)
+    #favor the cow with te higher z respective to the player (south)
+    #based off chatbot steve project from 2020
+    #dis = 0 means closest, dis = 1 second closest.... dis = -1 means farthest
+    #dir for direction ie right, left, forward, backdwards #not implemented
+    def find_entity(self, entity, time = 1, dis = 0, dir = None):
+        count = time
+        seenEntities = []
+        entityList = self.get_entityList(entity)
+        if dis > len(entityList):
+            dis = -1
+
+        while count > 0 and entityList:
+            targetEntityID = entityList[dis][0]['id']
+            while True:
+                entities = self.get_worldstate('Entities')
+                agent = entities[0]
+                for ent in self.get_entityList(entity):
+                    if targetEntityID == ent[0]['id']:
+                        targetEntity = ent[0]
+                        break
+
+                diffX = targetEntity['x'] - agent['x']
+                diffZ = targetEntity['z'] - agent['z']
+
+                distance = math.floor(math.sqrt(abs(diffX)**2 + abs(diffZ)**2))
+                yaw = -180 * math.atan2(diffX, diffZ) / math.pi
+
+                self.agent_host.sendCommand("setYaw {}".format(yaw))
+                self.run_forward(math.ceil(distance/2))
+
+                if distance <= 1:
+                    count -=1
+                    print("FOUND", time - count, "UNIQUE ENTITIES")
+                    seenEntities.append(targetEntity['id'])
+                    break
+            entityList = [i for i in self.get_entityList(entity) if not i[0]['id'] in seenEntities] #get sorted entity list
+        else:
+            print('No nearby entites')
+    
+    #kill specified entity
+    def kill_entity(self, entity, time):
+        pass
 
     def walk_left(self, distance=1):
         for i in range(distance):
             self.agent_host.sendCommand("strafe -0.5")
-            time.sleep(0.45)
+            time.sleep(0.4)
             self.agent_host.sendCommand("strafe 0")
 
     def walk_right(self, distance=1):
         for i in range(distance):
             self.agent_host.sendCommand("strafe 0.5")
-            time.sleep(0.45)
+            time.sleep(0.4)
             self.agent_host.sendCommand("strafe 0")
 
     def walk_forward(self, distance=1):
         for i in range(distance):
             self.agent_host.sendCommand("move 0.5")
-            time.sleep(0.45)
+            time.sleep(0.4)
             self.agent_host.sendCommand("move 0")
 
     def walk_backward(self, distance=1):
         for i in range(distance):
             self.agent_host.sendCommand("move -0.5")
-            time.sleep(0.45)
+            time.sleep(0.4)
             self.agent_host.sendCommand("move 0")
 
     def run_left(self, distance=1):
@@ -202,6 +274,7 @@ class BasicMovement():
             self.agent_host.sendCommand("move -1")
             time.sleep(0.2)
             self.agent_host.sendCommand("move 0")
+            
     def jump(self, num_jumps=1):
         for i in range(num_jumps):
             self.agent_host.sendCommand("jump 1")

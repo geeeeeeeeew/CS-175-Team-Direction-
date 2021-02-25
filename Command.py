@@ -14,7 +14,9 @@ neuralcoref.add_to_pipe(nlp)
 
 class Command:
     filterWords = {'a','an','the', 'to', 'then', 'for', 'in', 'on', 'at', 'by'} #static class atribute
-    actions = {'move': ['jump', 'walk', 'crouch', 'run', 'find']}
+    actions = { 'jump', 'walk', 'crouch', 'run', 'find', 'kill', 'break', 'switch', 'turn' }
+    entities = ['llama', 'cow', 'sheep', 'chicken', 'polar bear', 'pig']
+
     #used a dict so similarity checks for a category of actions (keys) and then searches for specfic supported actions(values)
     #reduces search to a category of actions instead the entire range of actions
 
@@ -30,7 +32,7 @@ class Command:
         self.doc = nlp(self.rawText)
         if self.doc._.has_coref:
             self.doc = nlp(self.doc._.coref_resolved)
-
+    
     #helper function for check_adj()
     def check_prep(self, prep):
         nouns = []
@@ -43,14 +45,14 @@ class Command:
     def check_adj(self, word):
         adj = []     
         for tok in word.children:
-            if tok.pos_ == 'ADP' and tok.dep_ == 'prep':
+            if tok.dep_ == 'prep':
                 for n in self.check_prep(tok):
                     adj += self.check_adj(n)
             elif tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.pos_ == "ADV" or tok.dep_ == "compound":
-                    adj.append((tok.lemma_, tok.pos_))
+                    adj.append(tok)
 
         print("check adj ->", word.text, '->', adj + [word.text])
-        return adj + [(word.text, word.pos_)]
+        return adj + [word]
     
     #helper function for parse() used to get conjunctive sentence/ compound words
     #ie Find a sheep, horse, and cow -> [sheep, horse, cow]
@@ -63,9 +65,7 @@ class Command:
                 objList += self.parse_conj(child, verb)  #check if there is connecting to found noun/adv
         return objList
     
-    #Parses doc object and returns a list of dicts. Each dict's key is the verb and the value a list of 2 tuples
-    #each 2 tuple has an important dependence on the verb
-    #first index is the word itself the second index is the word's POS
+    #Parses doc object and returns a list of dicts. Each dict's key is the verb and the value a list of tokens
     #kind of buggy works on grammarly correct sentences, and mixed results on more relaxed sentences
     def parse(self):
         parseList = []
@@ -107,33 +107,17 @@ class Command:
                     parseList.append(pair)
 
         print("PARSELIST ->", parseList)
-        #self.filter(parseList) #filtering currently not working cause of refactoring
-        print("PARSELIST AFTER FILTER ->", parseList)
-        #parseList = self.similarity_actions(parseList) #similarity check against Command.actions
+        parseList = self.similarity_actions(parseList) #similarity check against Command.actions
         print("PARSELIST AFTER SIMILARITY ->", parseList)
         return parseList
 
-    #filter unnecessary words from object list
-    def filter(self, parseList):
-        for i, pair in enumerate(parseList):
-            for k in pair.keys():
-                for j,obj in enumerate(pair[k]):
-                        filteredString = ' '.join([word for word in obj.split() if not word in Command.filterWords])
-                        parseList[i][k][j] = filteredString
-    
-    #helper function for similarity
+    #helper function for similarity_actions
     def best_similarity(self,word):
         mostSimilar = ""
         mostSimilarProb = 0
-        doc = nlp("Steve has to " + word)
-        for key in Command.actions.keys():
-            currentProb = nlp("Steve has to " + key).similarity(doc)
-            if currentProb > mostSimilarProb:
-                mostSimilar = key
-                mostSimilarProb = currentProb
-        mostSimilarProb = 0 #rest max prob 
-        for action in Command.actions[mostSimilar]:
-            currentProb = nlp("Steve has to " + action).similarity(doc)
+        doc = nlp(self.rawText)
+        for action in Command.actions:
+            currentProb = nlp(self.rawText.replace(word,action)).similarity(doc)
             if currentProb > mostSimilarProb:
                 mostSimilar = action
                 mostSimilarProb = currentProb
@@ -151,6 +135,8 @@ class Command:
                 newParseList.append({newKey:objList})
         return newParseList
 
-    #with verb check similarity against obj1 and obj2
-    def similarity_objects(self, verb, obj1, obj2):
-        pass
+    #find similarity (a probability) of word2 against word1 with orginal doc
+    def similarity_words(self, w1, w2):
+        doc = nlp(self.rawText)
+        synonymDoc = nlp( self.rawText.replace(w1, w2))
+        return synonymDoc.similarity(doc)
