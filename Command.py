@@ -6,11 +6,6 @@ import neuralcoref
 #pip install spacy==2.1.0
 #python -m spacy download en_core_web_md
 
-#check for similiaty with list of supported actions and nouns
-#possible optimization: remove ununsed pipelines in spacy
-#suppot numerical commands "jump 6 times"
-#Processing POS TAGGING, rule based matching, entity recognition (Proper Nouns), lemmatization (reduce words to their base playing -> play)
-
 nlp = spacy.load('en_core_web_md') #use medium sized english model
 #nlp.Defaults.stop_words |= {'a','an','the', 'to'} 
 #nlp.add_pipe(nlp.create_pipe('merge_noun_chunks'))
@@ -19,7 +14,7 @@ neuralcoref.add_to_pipe(nlp)
 
 class Command:
     filterWords = {'a','an','the', 'to', 'then', 'for', 'in', 'on', 'at', 'by'} #static class atribute
-    actions = {'move': ['jump', 'walk', 'crouch', 'run']} #planned supported actions for status report
+    actions = {'move': ['jump', 'walk', 'crouch', 'run', 'find']}
     #used a dict so similarity checks for a category of actions (keys) and then searches for specfic supported actions(values)
     #reduces search to a category of actions instead the entire range of actions
 
@@ -41,30 +36,21 @@ class Command:
         nouns = []
         for tok in prep.children:
             if tok.pos_ == 'NOUN':
-                print(tok.text)
                 nouns.append(tok)
         return nouns
         
     #helper function for parse() used to pick up potential undetected noun chunks
     def check_adj(self, word):
-        rightTokens = []   
-        leftTokens = []     
-        for tok in word.rights:
+        adj = []     
+        for tok in word.children:
             if tok.pos_ == 'ADP' and tok.dep_ == 'prep':
                 for n in self.check_prep(tok):
-                    rightTokens += self.check_adj(n)
+                    adj += self.check_adj(n)
             elif tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.pos_ == "ADV" or tok.dep_ == "compound":
-                rightTokens.append(tok.lemma_)
+                    adj.append((tok.lemma_, tok.pos_))
 
-        for tok in word.lefts:
-            if tok.pos_ == 'ADP' and tok.dep_ == 'prep':
-                for n in self.check_prep(tok):
-                    leftTokens += self.check_adj(n)
-            elif tok.pos_ == "NUM" or tok.pos_ == "ADJ" or tok.pos_ == "ADV" or tok.dep_ == "compound":
-                    leftTokens.append(tok.lemma_)
-                    
-        print("check adj ->", word.text, '->', leftTokens + [word.text] + rightTokens)
-        return leftTokens + [word.text] + rightTokens
+        print("check adj ->", word.text, '->', adj + [word.text])
+        return adj + [(word.text, word.pos_)]
     
     #helper function for parse() used to get conjunctive sentence/ compound words
     #ie Find a sheep, horse, and cow -> [sheep, horse, cow]
@@ -72,16 +58,14 @@ class Command:
         objList = []
         for child in dobj.children:
             print("parse conjunction ->", dobj.text, '-> ', child.text)
-            #three cases: noun+conj, adv+appos, adp+prep
-            if child.pos_ == 'NOUN' or child.pos_ == 'ADV':
-                objList.append( {verb: self.check_adj(child)} )
-                objList += self.parse_conj(child, verb) 
+            if (child.pos_ == 'NOUN' or child.pos_ == 'ADV') and (child.dep_ == 'conj'):
+                objList.append( {verb: self.check_adj(child) }) #find adj for found noun/adv
+                objList += self.parse_conj(child, verb)  #check if there is connecting to found noun/adv
         return objList
     
-    #check prep function??
-
-    #Parses doc object and returns a list of dicts. Each dict's key is the verb and the value a list of words that has
-    #an important dependence on the verb
+    #Parses doc object and returns a list of dicts. Each dict's key is the verb and the value a list of 2 tuples
+    #each 2 tuple has an important dependence on the verb
+    #first index is the word itself the second index is the word's POS
     #kind of buggy works on grammarly correct sentences, and mixed results on more relaxed sentences
     def parse(self):
         parseList = []
@@ -89,11 +73,16 @@ class Command:
             if token.pos_ == 'VERB':
                 print("VERB -> ", token.lemma_) 
                 print("VERB CHILDREN -> ", [c.text for c in token.children])
+                neg = 0
                 dobjs = []
                 pair = {token.lemma_: dobjs}
                 for child in token.children:
                     print("VERB CHILD ->", child.text)
-                    if child.pos_ == 'NOUN' or child.dep_ == 'dobj': #verb then noun
+                    if child.pos_ == 'ADV' and child.dep_== 'neg':
+                        neg = 1
+                        print("NEGATIVE CASE") #ie input is "do not walk left" then ignore the command
+                        break
+                    elif child.pos_ == 'NOUN' or child.dep_ == 'dobj': #verb then noun
                         print("NOUN CASE")
                         dobjs += self.check_adj(child)
                         objList = self.parse_conj(child, token.lemma_) #check for conjunctions
@@ -114,12 +103,13 @@ class Command:
                         objList = self.parse_conj(child, token.lemma_) #check for conjunctions
                         if objList:
                             parseList += objList
-                parseList.append(pair)
+                if not neg:
+                    parseList.append(pair)
 
-        print("PARSELIST BEFORE FILTER ->", parseList)
-        self.filter(parseList) #filtering
+        print("PARSELIST ->", parseList)
+        #self.filter(parseList) #filtering currently not working cause of refactoring
         print("PARSELIST AFTER FILTER ->", parseList)
-        #parseList = self.similarity(parseList) #similarity check against Command.actions
+        #parseList = self.similarity_actions(parseList) #similarity check against Command.actions
         print("PARSELIST AFTER SIMILARITY ->", parseList)
         return parseList
 
@@ -152,7 +142,7 @@ class Command:
     #jump run walk
     #check similiarty of action
     #only actions
-    def similarity(self, parseList):
+    def similarity_actions(self, parseList):
         newParseList = []
         for i,pair in enumerate(parseList):
             for k in pair.keys():
@@ -161,13 +151,6 @@ class Command:
                 newParseList.append({newKey:objList})
         return newParseList
 
-    #takes a string, returns any numerical modifier for an object as an int
-    def parse_numerical(self, s):
-        doc = nlp(s)
-        n = 1
-        for tok in doc:
-            print(tok.text, tok.pos_)
-            if tok.pos_ == "NUM":
-                n = int(tok.text)
-                break
-        return n
+    #with verb check similarity against obj1 and obj2
+    def similarity_objects(self, verb, obj1, obj2):
+        pass
