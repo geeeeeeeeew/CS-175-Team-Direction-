@@ -103,8 +103,8 @@ class Process:
 
     #the basic flow is to iterate through all the dicts parseList contains
     #then process the objList ties to the verb
-    #depending on the verb process the objlist is processed differently
-    #for example input is "walk left 5 blocks" -> [{walk:['left', '5 blocks']}] -> process_walk(objList, command) -> processes the objlist to dir = 'left' , dis = 5 -> sends to malmo
+    #depending on the verb, process the objlist differently
+    #for example input is "walk to the left 5 blocks" -> [{walk:[('left', 'ADJ'), ('5, 'NUM'), ('blocks', 'NOUN') ]}] -> process_walk(objList, command) -> processes the objlist to dir = 'left' , dis = 5 -> sends to malmo
     def process_command(self, command):
         parseList = command.parse()
         for c in parseList:
