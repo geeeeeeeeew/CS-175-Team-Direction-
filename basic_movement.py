@@ -145,9 +145,24 @@ class BasicMovement():
     #LineofSight
     #XPos, YPos, ZPos, Pitch, Yaw
     def get_worldstate(self, obs):
+        # time.sleep(0.1)
         lastWorldState = self.agent_host.peekWorldState()
         observation = json.loads(lastWorldState.observations[-1].text)
         return observation[obs]
+
+    def get_yaw(self):
+        # time.sleep(0.1)
+        lastWorldState = self.agent_host.peekWorldState()
+        observation = json.loads(lastWorldState.observations[-1].text)
+        yaw = observation.get(u'Yaw', 0)
+        return yaw
+
+    # checks if yaw is in the left side of the agent
+    def in_range(self, minYaw, maxYaw, yaw):
+        if minYaw < 0:
+            return minYaw <= yaw <= maxYaw
+        else: # minYaw > 0
+            return minYaw <= yaw <= 180 or -180 < yaw <= maxYaw
 
     #helper function for find_entity
     def get_entityList(self, entity):
@@ -158,24 +173,91 @@ class BasicMovement():
         for ent in entities:
             if ent['name'].lower() == entity:
                 targetEntities.append(ent)
-        entityList = []     
+        entityList = []
         for ent in targetEntities:
             entityList.append( (ent, (math.sqrt(abs((abs(agent['x'] - ent['x']) ** 2) + (abs(agent['z'] - ent['z']) ** 2))))) )
 
         entityList.sort(key = lambda x: x[1])
         return entityList # list of tuples where first item is ent
 
+    def get_leftEntityList(self, entity):
+        entities = self.get_worldstate('Entities')
+        agent = entities[0]
+        playerYaw = self.get_yaw()
+        minYaw = playerYaw - 180
+        if minYaw <= -180:
+            minYaw += 360
+
+        targetEntities = []
+        for ent in entities:
+            if ent['name'].lower() == entity:
+                targetEntities.append(ent)
+        entityList = []
+        for ent in entities:
+            if ent['name'].lower() == entity:
+                targetEntities.append(ent)
+        entityList = []
+        for ent in targetEntities:
+
+            diffX = ent['x'] - agent['x']
+            diffZ = ent['z'] - agent['z']
+            yaw = -180 * math.atan2(diffX, diffZ) / math.pi
+            if self.in_range(minYaw, playerYaw, yaw):
+                entityList.append( (ent, (math.sqrt(abs((abs(agent['x'] - ent['x']) ** 2) + (abs(agent['z'] - ent['z']) ** 2))))) )
+
+        # there are no entities to the left of the player, so we find the nearest entity instead
+        if len(entityList) == 0:
+            return self.get_entityList(entity)
+        entityList.sort(key = lambda x: x[1])
+        return entityList # list of tuples where first item is ent
+
+    def get_rightEntityList(self, entity):
+        entities = self.get_worldstate('Entities')
+        agent = entities[0]
+        playerYaw = self.get_yaw()
+        minYaw = playerYaw - 180
+        if minYaw <= -180:
+            minYaw += 360
+
+        targetEntities = []
+        for ent in entities:
+            if ent['name'].lower() == entity:
+                targetEntities.append(ent)
+        entityList = []
+        for ent in targetEntities:
+
+            diffX = ent['x'] - agent['x']
+            diffZ = ent['z'] - agent['z']
+            yaw = -180 * math.atan2(diffX, diffZ) / math.pi
+            if self.in_range(minYaw, playerYaw, yaw):
+                pass
+            else:
+                entityList.append( (ent, (math.sqrt(abs((abs(agent['x'] - ent['x']) ** 2) + (abs(agent['z'] - ent['z']) ** 2))))) )
+
+        # there are no entities to the right of the player, so we find the nearest entity instead
+        if len(entityList) == 0:
+            return self.get_entityList(entity)
+        entityList.sort(key = lambda x: x[1])
+        return entityList # list of tuples where first item is ent
+
     #FUTURE FEATURES
     #ADD cow to the right or cow to the left
     #to do this favor the cow with the lower x respective player (left)
-    #favor teh cow with the higher x respective to the player (right)
-    #favor the cow with the lower z respective to the palyer (north)
+    #favor the cow with the higher x respective to the player (right)
+    #favor the cow with the lower z respective to the player (north)    
     #favor the cow with te higher z respective to the player (south)
     #based off chatbot steve project from 2020
-    def find_entity(self, entity, time = 1):
+    def find_entity(self, entity, time = 1, direction=None):
         count = time
         seenEntities = []
         entityList = self.get_entityList(entity)
+        print(entityList[0])
+        playerYaw = self.get_yaw()
+
+        if direction == 'left':
+            entitylist = self.get_leftEntityList(entity)
+        elif direction == 'right':
+            entitylist = self.get_rightEntityList(entity)
 
         while count > 0 and entityList:
             closestEntityID = entityList[0][0]['id']
@@ -196,12 +278,21 @@ class BasicMovement():
                 self.agent_host.sendCommand("setYaw {}".format(yaw))
                 self.run_forward(math.ceil(distance/2))
 
+                print(self.get_yaw())
+                print(closestEntity)
+                print(agent['x'])
+
                 if distance <= 1:
                     count -=1
                     print("FOUND", time - count, "UNIQUE ENTITIES")
                     seenEntities.append(closestEntity['id'])
                     break
-            entityList = [i for i in self.get_entityList(entity) if not i[0]['id'] in seenEntities] #get closest entity
+            if direction == None:
+                entityList = [i for i in self.get_entityList(entity) if not i[0]['id'] in seenEntities] #get closest entity
+            elif direction == 'left':
+                entityList = [i for i in self.get_leftEntityList(entity) if not i[0]['id'] in seenEntities] #get closest entity
+            elif direction == 'right':
+                entityList = [i for i in self.get_rightEntityList(entity) if not i[0]['id'] in seenEntities] #get closest entity
         else:
             print('No nearby entites')
 
@@ -263,3 +354,15 @@ class BasicMovement():
         self.agent_host.sendCommand("crouch 1")
         time.sleep(length)
         self.agent_host.sendCommand("crouch 0")
+
+if __name__ == '__main__':
+    test = BasicMovement({})
+    #test.walk_left(5)
+    #test.walk_right(5)
+    #test.walk_forward(5)
+    #test.walk_backward(5)
+    #test.run_left(5)
+    #test.run_right(5)
+    #test.run_forward(5)
+    #test.run_backward(5)
+    test.find_entity('sheep', 1, 'left')
