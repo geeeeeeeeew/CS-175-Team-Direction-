@@ -38,15 +38,14 @@ class BasicMovement():
 
     def spawn_mobs(self):
         spawnMobs = ''
-        #mobs = ['Llama', 'Cow', 'Sheep', 'Chicken', 'PolarBear', 'Pig']
-        mobs = ['Pig']
+        mobs = ['Llama', 'Cow', 'Sheep', 'Chicken', 'PolarBear', 'Pig']
         for mob in mobs:
             for i in range(self.mobCount):
                 spawnMobs += "<DrawEntity x='{}' y='2' z='{}' type='{}'/>".format(randint(-self.size/5, self.size/5),randint(-self.size/5, self.size/5),mob)
         return spawnMobs
 
     def get_mission_xml(self):
-        spawnMobs = ""#self.spawn_mobs()
+        spawnMobs = self.spawn_mobs()
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <About>
