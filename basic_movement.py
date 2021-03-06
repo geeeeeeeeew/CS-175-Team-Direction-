@@ -41,7 +41,7 @@ class BasicMovement():
         mobs = ['Llama', 'Cow', 'Sheep', 'Chicken', 'PolarBear', 'Pig']
         for mob in mobs:
             for i in range(self.mobCount):
-                spawnMobs += "<DrawEntity x='{}' y='2' z='{}' type='{}'/>".format(randint(-self.size/5, self.size/5),randint(-self.size/5, self.size/5),mob)
+                spawnMobs += "<DrawEntity x='{}' y='2' z='{}' type='{}'/>".format(randint(-self.size, self.size),randint(-self.size, self.size),mob)
         return spawnMobs
 
     def get_mission_xml(self):
@@ -149,6 +149,14 @@ class BasicMovement():
         lastWorldState = self.agent_host.peekWorldState()
         observation = json.loads(lastWorldState.observations[-1].text)
         return observation[obs]
+    
+    #return list of items in hotbar
+    def get_hotbarList(self):
+        hotbarList = []
+        for i in range(9):
+            hotbar = 'Hotbar_{}_item'.format(i) 
+            hotbarList.append(str(self.get_worldstate(hotbar)))
+        return hotbarList
 
     #get item from hotbar
     def switch_item(self,item):
