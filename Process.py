@@ -19,12 +19,12 @@ class Process:
     def parse_numerical(self, objList):
         numList = self.find_obj(objList, ['NUM'])
         if numList:
-            return max([int(i) for i in numList])
+            return max([int(i.text) for i in numList])
         return None
     
-    def check_tokList(self, tokList, str):
+    def check_tokList(self, tokList, string):
         for tok in tokList:
-            if tok.lemma_ == "str":
+            if tok.lemma_ == string:
                 return True
         return False
 
@@ -95,17 +95,27 @@ class Process:
     #TODO add support for synonym objects
     #only recognized specific obj ie recognizes 'find cow' but not 'find cows'
     def process_find(self, objList, command):
-        entity = self.find_obj(objList, ['NOUN', 'ADJ'])
+        entity = self.find_obj(objList, ['NOUN', 'ADJ', 'ADV'])
+        #foo = self.find_obj(objList, ['ADJ', 'ADV'])
         times = self.parse_numerical(objList)
+
         if times == None:
             times = 1
-        
+
+        if self.check_tokList(entity, "right"):
+            direction = 'right'
+        elif self.check_tokList(entity, "left"):
+            direction = 'left'
+        else:
+            direction = None
+
         print("entity ->", entity)
         print("times ->", times)
+        print("dir/dis->",direction)
 
         if entity:
             print("find")
-            self.malmo.find_entity(entity[0].lemma_, times)
+            self.malmo.find_entity(entity[0].lemma_, times, direction = direction)
         else:
             print('no entity specified')
 

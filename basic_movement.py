@@ -38,14 +38,15 @@ class BasicMovement():
 
     def spawn_mobs(self):
         spawnMobs = ''
-        mobs = ['Llama', 'Cow', 'Sheep', 'Chicken', 'PolarBear', 'Pig']
+        #mobs = ['Llama', 'Cow', 'Sheep', 'Chicken', 'PolarBear', 'Pig']
+        mobs = ['Pig']
         for mob in mobs:
             for i in range(self.mobCount):
-                spawnMobs += "<DrawEntity x='{}' y='2' z='{}' type='{}'/>".format(randint(-self.size, self.size),randint(-self.size, self.size),mob)
+                spawnMobs += "<DrawEntity x='{}' y='2' z='{}' type='{}'/>".format(randint(-self.size/5, self.size/5),randint(-self.size/5, self.size/5),mob)
         return spawnMobs
 
     def get_mission_xml(self):
-        spawnMobs = self.spawn_mobs()
+        spawnMobs = ""#self.spawn_mobs()
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <About>
@@ -75,7 +76,7 @@ class BasicMovement():
                     <AgentSection mode="Survival">
                         <Name>SpeechToSteve</Name>
                         <AgentStart>
-                            <Placement x="0.5" y="2" z="0.5" yaw="0"/>
+                            <Placement x="0" y="2" z="0" yaw="0"/>
                             <Inventory>
                                 <InventoryItem slot="0" type="diamond_sword"/>
                                 <InventoryItem slot="1" type="diamond_pickaxe"/>
@@ -88,7 +89,7 @@ class BasicMovement():
                             <ContinuousMovementCommands turnSpeedDegs="180"/>
                             <ObservationFromHotBar/>
                             <ObservationFromNearbyEntities>''' +\
-                                "<Range name='Entities' xrange='{}' yrange='{}' zrange='{}'/>".format(self.size, self.size, self.size) + \
+                                "<Range name='Entities' xrange='{}' yrange='{}' zrange='{}'/>".format(self.size, 5, self.size) + \
                             '''</ObservationFromNearbyEntities>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
@@ -160,9 +161,36 @@ class BasicMovement():
     #break block
     def break_block(self, block, time):
         pass
+    
+    #helper function
+    def isLeft(self, a , b , p, yaw):
+        left = None
+        crossProduct = ((b[0]-a[0])*(p[1]-a[1]) - (b[1]-a[1])*(p[0]-a[0])) > 0 #bool only need to know negative or not
+        print("crossproduct ->", crossProduct)
+        if yaw > 270:
+            if crossProduct:
+                left = False
+            else:
+                left = True
+        elif yaw > 180:
+            if crossProduct:
+                left = False
+            else:
+                left = True
+        elif yaw > 90:
+            if crossProduct:
+                left = True
+            else:
+                left = False
+        else:
+            if crossProduct:
+                left = False
+            else:
+                left = True
+        return left
 
     #helper function for find_entity
-    def get_entityList(self, entity):
+    def get_entityList(self, entity, direction = None):
         entities = self.get_worldstate('Entities')
         agent = entities[0]
 
@@ -173,30 +201,61 @@ class BasicMovement():
         entityList = []     
         for ent in targetEntities:
             entityList.append( (ent, (math.sqrt(abs((abs(agent['x'] - ent['x']) ** 2) + (abs(agent['z'] - ent['z']) ** 2))))) )
+        #create two lists left and right sort them then append to each other??
+        if direction == None:
+            entityList.sort(key = lambda x: x[1]) #sort by tuple second element which is the distance
+        else:
+            yaw = (agent['yaw'] + 90) * (math.pi / 180)
+            pitch = (agent['pitch'] * -1) * (math.pi / 180)
+            a = (agent['x'], agent['z'])
+            b = (agent['x'] + self.size * math.cos(yaw) * math.cos(pitch), agent['z'] + self.size * math.sin(yaw) * math.cos(pitch) )
+            print("YAW -> ", agent['yaw'] + 90)
+            print("A->", a)
+            print("B->", b)
+            leftEntityList = []
+            rightEntityList = []
 
-        entityList.sort(key = lambda x: x[1]) #sort by tuple second element which is the distance
+            for ent in entityList: 
+                p = (ent[0]['x'], ent[0]['z'])
+                if self.isLeft(a,b,p, yaw):
+                    print("LEFT ENTITY FOUND")
+                    leftEntityList.append(ent)
+                else:
+                    print("RIGHT ENTITY FOUND")
+                    rightEntityList.append(ent)
+
+            leftEntityList.sort(key = lambda x: x[1])
+            rightEntityList.sort(key = lambda x: x[1])
+            print("LEFT ENTITY LIST")
+            for ent in leftEntityList:
+                print( "({},{})".format(ent[0]['x'], ent[0]['z']))
+            print("RIGHT ENTITY LIST")
+            for ent in rightEntityList:
+                print( "({},{})".format(ent[0]['x'], ent[0]['z']))
+            if direction == 'left':
+                entityList = leftEntityList + rightEntityList
+            else:
+                entityList = rightEntityList + leftEntityList
+
         return entityList # list of tuples where first item is ent
 
     #FUTURE FEATURES
     #ADD cow to the right or cow to the left
     #add different sort methods, to the right, to the left, south, north
     #if farthest specified then change index to -1
-    #to do this favor the cow with the lower x respective player (left) take players yaw into account 
-    #favor teh cow with the higher x respective to the player (right)
-    #favor the cow with the lower z respective to the palyer (north)
-    #favor the cow with te higher z respective to the player (south)
     #based off chatbot steve project from 2020
     #dis = 0 means closest, dis = 1 second closest.... dis = -1 means farthest
     #dir for direction ie right, left, forward, backdwards #not implemented
-    def find_entity(self, entity, time = 1, dis = 0, dir = None):
+    def find_entity(self, entity, time = 1, dis = 0, direction = None):
         count = time
         seenEntities = []
-        entityList = self.get_entityList(entity)
+        entityList = self.get_entityList(entity, direction)
         if dis > len(entityList):
             dis = -1
 
         while count > 0 and entityList:
             targetEntityID = entityList[dis][0]['id']
+            print("SELECTED ENTITY->", entityList[dis][0])
             while True:
                 entities = self.get_worldstate('Entities')
                 agent = entities[0]
@@ -204,7 +263,9 @@ class BasicMovement():
                     if targetEntityID == ent[0]['id']:
                         targetEntity = ent[0]
                         break
-
+                
+                #print("AGENT", agent)
+                #print("TARGET", targetEntity)
                 diffX = targetEntity['x'] - agent['x']
                 diffZ = targetEntity['z'] - agent['z']
 
