@@ -85,6 +85,7 @@ class BasicMovement():
                         </AgentStart>
                         <AgentHandlers>
                             <AbsoluteMovementCommands/>
+                            <InventoryCommands/>
                             <ContinuousMovementCommands turnSpeedDegs="180"/>
                             <ObservationFromHotBar/>
                             <ObservationFromNearbyEntities>''' +\
@@ -151,14 +152,23 @@ class BasicMovement():
 
     #get item from hotbar
     def switch_item(self,item):
-        pass
-    
+        for i in range(9):
+            hotbar = 'Hotbar_{}_item'.format(i)
+            if str(self.get_worldstate(hotbar)) == item:
+                press = "hotbar.{} 1".format(i+1)
+                release = "hotbar.{} 0".format(i+1)
+                self.agent_host.sendCommand(press)
+                self.agent_host.sendCommand(release)
+                break
+        else:
+            print("item not found")
+
     #find block
-    def find_block(self, block, time):
+    def find_block(self, block, num):
         pass
 
     #break block
-    def break_block(self, block, time):
+    def break_block(self, block, num):
         pass
     
     #helper function
@@ -238,15 +248,8 @@ class BasicMovement():
 
         return entityList # list of tuples where first item is ent
 
-    #FUTURE FEATURES
-    #ADD cow to the right or cow to the left
-    #add different sort methods, to the right, to the left, south, north
-    #if farthest specified then change index to -1
-    #based off chatbot steve project from 2020
-    #dis = 0 means closest, dis = 1 second closest.... dis = -1 means farthest
-    #dir for direction ie right, left, forward, backdwards #not implemented
-    def find_entity(self, entity, time = 1, dis = 0, direction = None):
-        count = time
+    def find_entity(self, entity, num = 1, dis = 0, direction = None):
+        count = num
         seenEntities = []
         entityList = self.get_entityList(entity, direction)
         if dis > len(entityList):
@@ -276,16 +279,60 @@ class BasicMovement():
 
                 if distance <= 1:
                     count -=1
-                    print("FOUND", time - count, "UNIQUE ENTITIES")
+                    print("FOUND", num - count, "UNIQUE ENTITIES")
                     seenEntities.append(targetEntity['id'])
                     break
-            entityList = [i for i in self.get_entityList(entity) if not i[0]['id'] in seenEntities] #get sorted entity list
+            entityList = [i for i in self.get_entityList(entity, direction) if not i[0]['id'] in seenEntities] #get sorted entity list
         else:
             print('No nearby entites')
     
     #kill specified entity
-    def kill_entity(self, entity, time):
-        pass
+    def kill_entity(self, entity, num = 1, dis = 0, direction = None, item = None):
+        count = num
+        seenEntities = []
+        entityList = self.get_entityList(entity, direction)
+        
+        if item != None:
+            self.switch_item(item)
+        if dis > len(entityList):
+            dis = -1
+
+        while count > 0 and entityList:
+            targetEntityID = entityList[dis][0]['id']
+            print("SELECTED ENTITY->", entityList[dis][0])
+            while True:
+                entities = self.get_worldstate('Entities')
+                agent = entities[0]
+                for ent in self.get_entityList(entity):
+                    if targetEntityID == ent[0]['id']:
+                        targetEntity = ent[0]
+                        break
+                else:
+                    count -= 1
+                    break
+                
+                diffX = targetEntity['x'] - agent['x']
+                diffZ = targetEntity['z'] - agent['z']
+
+                distance = math.floor(math.sqrt(abs(diffX)**2 + abs(diffZ)**2))
+                yaw = -180 * math.atan2(diffX, diffZ) / math.pi
+
+                self.agent_host.sendCommand("setYaw {}".format(yaw))
+                self.run_forward(math.ceil(distance/2))
+
+                if distance <= 1:
+                    time.sleep(0.1)
+                    self.agent_host.sendCommand('setPitch 50')
+                    time.sleep(0.1)
+                    self.agent_host.sendCommand("attack 1")
+                    time.sleep(0.1)
+                    self.agent_host.sendCommand('setPitch 0')
+                    time.sleep(0.1)
+                    self.agent_host.sendCommand("attack 0")
+                    
+            entityList = [i for i in self.get_entityList(entity, direction) if not i[0]['id'] in seenEntities] #get sorted entity list
+        else:
+            print('No nearby entites')
 
     def walk_left(self, distance=1):
         for i in range(distance):
@@ -345,3 +392,20 @@ class BasicMovement():
         self.agent_host.sendCommand("crouch 1")
         time.sleep(length)
         self.agent_host.sendCommand("crouch 0")
+    
+    def turn_left(self, length = 0.5):
+        self.agent_host.sendCommand("turn -1")
+        time.sleep(length)
+        self.agent_host.sendCommand("turn 0")
+    
+    def turn_right(self, length = 0.5):
+        self.agent_host.sendCommand("turn 1")
+        time.sleep(length)
+        self.agent_host.sendCommand("turn 0")
+    
+if __name__ == "__main__":
+    test = BasicMovement({})
+    time.sleep(0.5)
+    test.turn_left()
+    test.turn_right()
+    test.kill_entity('cow', 3, -1, 'right','diamond_axe')

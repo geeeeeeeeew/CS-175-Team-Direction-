@@ -5,7 +5,7 @@ import time
 class Process:
     def __init__(self, malmo):
         self.malmo = malmo
-
+        
     #return a list of words with given pos from the objList
     #POS is a list of part of speches wish to find 
     def find_obj(self, objList, pos = ['NOUN', 'ADV', 'ADJ']):
@@ -91,7 +91,8 @@ class Process:
         print("length ->", length)
         print("crouch")
         self.malmo.crouch(length)
-    
+
+    #find the furthest pig to the right and kill it with a diamond shovel
     #TODO add support for synonym objects
     #only recognized specific obj ie recognizes 'find cow' but not 'find cows'
     def process_find(self, objList, command):
@@ -118,6 +119,12 @@ class Process:
             self.malmo.find_entity(entity[0].lemma_, times, direction = direction)
         else:
             print('no entity specified')
+
+    def process_switch(self, objList, command):
+        pass
+    
+    def process_kill(self, objList, command):
+        pass
 
     #the basic flow is to iterate through all the dicts parseList contains
     #then process the objList ties to the verb

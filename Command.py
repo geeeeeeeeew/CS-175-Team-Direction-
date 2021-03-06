@@ -14,7 +14,7 @@ neuralcoref.add_to_pipe(nlp)
 
 class Command:
     filterWords = {'a','an','the', 'to', 'then', 'for', 'in', 'on', 'at', 'by'} #static class atribute
-    actions = { 'jump', 'walk', 'crouch', 'run', 'find'}
+    actions = { 'jump', 'walk', 'crouch', 'run', 'find', 'kill', 'turn', 'switch'}
     entities = ['llama', 'cow', 'sheep', 'chicken', 'polar bear', 'pig']
 
     #used a dict so similarity checks for a category of actions (keys) and then searches for specfic supported actions(values)
