@@ -15,6 +15,8 @@ Current sate:
 Plan: 
 	train the player to pick up the diamond
 	draw different shapes of tracks and visualize the movement of the player
+Reference:
+	https://github.com/microsoft/malmo/blob/master/Malmo/samples/Python_examples/cart_test.py
 '''
 
 # num_tracks = 1
@@ -31,8 +33,8 @@ def createTracks():
 			<DrawCuboid x1="''' + '10' + '''" y1="5" z1="''' + '1'+ '''" x2="''' + '10' + '''" y2="5" z2="''' + '1' + '''" type="obsidian"/>
 			<DrawLine x1="''' + '-10' + '''" y1="5" z1="''' + '1' + '''" x2="''' + '9' + '''" y2="5" z2="''' + '1' + '''" type="golden_rail"/>
 			<DrawCuboid x1="''' + '-10' + '''" y1="4" z1="''' + '2' + '''" x2="''' + '9' + '''" y2="4" z2="''' + '2' + '''" type="netherrack"/>
-			<DrawCuboid x1="''' + '-11' + '''" y1="5" z1="''' + '2' + '''" x2="''' + str(goal-1) + '''" y2="5" z2="''' + '2' + '''" type="fire"/>
-			<DrawCuboid x1="''' + str(goal+1) + '''" y1="5" z1="''' + '2' + '''" x2="''' + '10' + '''" y2="5" z2="''' + '2' + '''" type="fire"/>
+			<DrawCuboid x1="''' + '-11' + '''" y1="5" z1="''' + '2' + '''" x2="''' + str(goal-1) + '''" y2="5" z2="''' + '2' + '''" type="water"/>
+			<DrawCuboid x1="''' + str(goal+1) + '''" y1="5" z1="''' + '2' + '''" x2="''' + '10' + '''" y2="5" z2="''' + '2' + '''" type="water"/>
 			<DrawCuboid x1="''' + str(goal) + '''" y1="4" z1="''' + '2' + '''" x2="''' + str(goal) + '''" y2="4" z2="''' + '2' + '''" type="''' + goal_block + '''"/>
 	'''
 	drawTrack += '''<DrawEntity x="''' + '-10' + '''" y="5" z="''' + '1.5' + '''" type="MinecartRideable"/>'''
