@@ -24,8 +24,7 @@ class BasicMovement():
     def __init__(self, env_config):  
         # Static Parameters
         self.size = 35
-        self.mobCount = 3   #amount of mobs per mob type
-        self.block = 0.001
+        self.mobCount = 5   #amount of mobs per mob type
         # Malmo Parametersa
         self.agent_host = MalmoPython.AgentHost()
         world_state = self.init_malmo()
@@ -45,7 +44,7 @@ class BasicMovement():
         return spawnMobs
 
     def get_mission_xml(self):
-        spawnMobs = self.spawn_mobs()
+        spawnMobs = "" #self.spawn_mobs()
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <About>
@@ -72,7 +71,7 @@ class BasicMovement():
                             <ServerQuitWhenAnyAgentFinishes/>
                         </ServerHandlers>
                     </ServerSection>
-                    <AgentSection mode="Survival">
+                    <AgentSection mode="Creative">
                         <Name>SpeechToSteve</Name>
                         <AgentStart>
                             <Placement x="0" y="2" z="0" yaw="0"/>
@@ -180,31 +179,10 @@ class BasicMovement():
         pass
     
     #helper function
-    def isLeft(self, a , b , p, yaw):
-        left = None
+    def isLeft(self, a , b , p):      
         crossProduct = ((b[0]-a[0])*(p[1]-a[1]) - (b[1]-a[1])*(p[0]-a[0])) > 0 #bool only need to know negative or not
-        print("crossproduct ->", crossProduct)
-        if yaw > 270:
-            if crossProduct:
-                left = False
-            else:
-                left = True
-        elif yaw > 180:
-            if crossProduct:
-                left = False
-            else:
-                left = True
-        elif yaw > 90:
-            if crossProduct:
-                left = True
-            else:
-                left = False
-        else:
-            if crossProduct:
-                left = False
-            else:
-                left = True
-        return left
+        #print("crossproduct ->", crossProduct)
+        return not crossProduct
 
     #helper function for find_entity
     def get_entityList(self, entity, direction = None):
@@ -226,7 +204,7 @@ class BasicMovement():
             pitch = (agent['pitch'] * -1) * (math.pi / 180)
             a = (agent['x'], agent['z'])
             b = (agent['x'] + self.size * math.cos(yaw) * math.cos(pitch), agent['z'] + self.size * math.sin(yaw) * math.cos(pitch) )
-            print("YAW -> ", agent['yaw'] + 90)
+            #print("YAW -> ", agent['yaw'] + 90)
             print("A->", a)
             print("B->", b)
             leftEntityList = []
@@ -234,7 +212,7 @@ class BasicMovement():
 
             for ent in entityList: 
                 p = (ent[0]['x'], ent[0]['z'])
-                if self.isLeft(a,b,p, yaw):
+                if self.isLeft(a,b,p):
                     print("LEFT ENTITY FOUND")
                     leftEntityList.append(ent)
                 else:
@@ -250,9 +228,15 @@ class BasicMovement():
             for ent in rightEntityList:
                 print( "({},{})".format(ent[0]['x'], ent[0]['z']))
             if direction == 'left':
-                entityList = leftEntityList + rightEntityList
+                if leftEntityList:
+                    entityList = leftEntityList
+                else:
+                    entityList =  leftEntityList + rightEntityList
             else:
-                entityList = rightEntityList + leftEntityList
+                if rightEntityList:
+                    entityList = rightEntityList
+                else:
+                    entityList = rightEntityList + leftEntityList
 
         return entityList # list of tuples where first item is ent
 
@@ -413,7 +397,9 @@ class BasicMovement():
     
 if __name__ == "__main__":
     test = BasicMovement({})
+    
     time.sleep(0.5)
+    print(test.get_worldstate("floorAll"))
     test.turn_left()
     test.turn_right()
     test.kill_entity('cow', 3, -1, 'right','diamond_axe')
