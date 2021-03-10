@@ -35,7 +35,7 @@ def createTracks():
 			<DrawCuboid x1="''' + str(goal+1) + '''" y1="5" z1="''' + '2' + '''" x2="''' + '10' + '''" y2="5" z2="''' + '2' + '''" type="fire"/>
 			<DrawCuboid x1="''' + str(goal) + '''" y1="4" z1="''' + '2' + '''" x2="''' + str(goal) + '''" y2="4" z2="''' + '2' + '''" type="''' + goal_block + '''"/>
 	'''
-	drawTrack += '''<DrawEntity x="''' + str(-10) + '''" y="5" z="''' + '1.5' + '''" type="MinecartRideable"/>'''
+	drawTrack += '''<DrawEntity x="''' + '-10' + '''" y="5" z="''' + '1.5' + '''" type="MinecartRideable"/>'''
 	# set player position
 	return '''<DrawingDecorator>
 						''' + drawTracks + '''
