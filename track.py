@@ -6,6 +6,17 @@ import json
 import os
 import sys
 
+'''
+Idea:
+	Create one rideable track with predefined 20 blocks, and let player get on the track. The mission is to pick up diamond set in the goal block
+	using reinforcement learning algorithm. 
+Current sate: 
+	draw one track, set player and diamond goal block
+Plan: 
+	train the player to pick up the diamond
+	draw different shapes of tracks and visualize the movement of the player
+'''
+
 # num_tracks = 1
 track_length = 20 #number of blocks in the track
 
