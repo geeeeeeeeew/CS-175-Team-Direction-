@@ -77,14 +77,14 @@ class Process:
     
     def process_turn(self, objList, command):
         direction = self.find_obj(objList)
-        length = self.parse_numerical(objList)
-        if length == None:
-            length = 0.5
+        num = self.parse_numerical(objList)
+        if num == None:
+            num = 1
         if self.check_tokList(direction, "left"):
-            self.malmo.turn_left(length)
+            self.malmo.turn_left(num)
             print('turn left')
-        elif self.check_tokList(direction, "right"):
-            self.malmo.turn_right(length)
+        else:
+            self.malmo.turn_right(num)
             print('turn right')
     
     def process_jump(self, objList, command):
@@ -105,8 +105,9 @@ class Process:
 
     #find the furthest pig to the right and kill it with a diamond shovel
     def process_find(self, objList, command):
-        entity = self.find_obj(objList, ['NOUN'], ['dobj'])
-        modifier = self.find_obj(objList, ['ADJ', 'ADV', 'NOUN'] , ['acamp', 'pobj', 'advmod', 'compound'])
+        entity = self.find_obj(objList, ['NOUN'])
+        modifier = self.find_obj(objList, ['ADJ', 'ADV'])
+        directionList = self.find_obj(objList)
         times = self.parse_numerical(objList)
 
         if times == None:
@@ -114,17 +115,13 @@ class Process:
 
         #check for direction modifier
         direction = None
-        for i, mod in enumerate(modifier):
-            if mod.lemma_ == "left":
+        for d in directionList:
+            if d.lemma_ == "left":
                 direction = "right"
-                modifier.pop(i)
                 break
-            elif mod.lemma_ == "right":
+            elif d.lemma_ == "right":
                 direction = "right"
-                modifier.pop(i)
                 break
-            else:
-                direction = None
         
         mostSimilarDist = 0 #can be either 0 or -1, 0 for closest, -1 for farthest. Default to 0 for now
         bestSimilarity = 0
@@ -133,10 +130,11 @@ class Process:
             print("SIMILAIRYT check ->", mod.lemma_)
             farSimilarity = max(command.similarity_words(mod.lemma_, "far"), command.similarity_words(mod.lemma_, "farth"))
             closeSimilarity = command.similarity_words(mod.lemma_, "close")
-            if farSimilarity > 0.75 and farSimilarity > bestSimilarity:
+            print(closeSimilarity, farSimilarity)
+            if farSimilarity > 0.8 and farSimilarity > bestSimilarity:
                 mostSimilarDist = -1
                 bestSimilarity = farSimilarity
-            elif closeSimilarity > 0.75 and farSimilarity > bestSimilarity:
+            if closeSimilarity > 0.8 and closeSimilarity >  bestSimilarity:
                 mostSimilarDist = 0
                 bestSimilarity = closeSimilarity
 
@@ -184,9 +182,10 @@ class Process:
 
     
     def process_kill(self, objList, command):
-        entity = self.find_obj(objList, ['NOUN'], ['dobj'])
+        entity = self.find_obj(objList, ['NOUN'])
         item = self.find_obj(objList, ['NOUN'], ['pobj']) # kill [entity] with [item]
-        modifier = self.find_obj(objList, ['ADJ', 'ADV', 'NOUN'] , ['acamp', 'pobj', 'advmod', 'compound'])
+        modifier = self.find_obj(objList, ['ADJ', 'ADV'])
+        directionList = self.find_obj(objList)
         times = self.parse_numerical(objList)
 
         if times == None:
@@ -209,17 +208,13 @@ class Process:
             
         #check for direction modifier
         direction = None
-        for i, mod in enumerate(modifier):
-            if mod.lemma_ == "left":
+        for d in directionList:
+            if d.lemma_ == "left":
                 direction = "right"
-                modifier.pop(i)
                 break
-            elif mod.lemma_ == "right":
+            elif d.lemma_ == "right":
                 direction = "right"
-                modifier.pop(i)
                 break
-            else:
-                direction = None
         
         mostSimilarDist = 0 #can be either 0 or -1, 0 for closest, -1 for farthest. Default to 0 for now
         bestSimilarity = 0
@@ -228,10 +223,10 @@ class Process:
             print("SIMILAIRYT check ->", mod.lemma_)
             farSimilarity = max(command.similarity_words(mod.lemma_, "far"), command.similarity_words(mod.lemma_, "farth"))
             closeSimilarity = command.similarity_words(mod.lemma_, "close")
-            if farSimilarity > 0.75 and farSimilarity > bestSimilarity:
+            if farSimilarity > 0.8 and farSimilarity > bestSimilarity:
                 mostSimilarDist = -1
                 bestSimilarity = farSimilarity
-            elif closeSimilarity > 0.75 and farSimilarity > bestSimilarity:
+            if closeSimilarity > 0.8 and closeSimilarity >  bestSimilarity:
                 mostSimilarDist = 0
                 bestSimilarity = closeSimilarity
 
@@ -273,9 +268,9 @@ class Process:
                     self.process_jump(objList, command)
                 elif verb == "crouch":
                     self.process_crouch(objList, command)
-                elif verb == "find":
+                elif verb == "find" or verb == 'go':
                     self.process_find(objList, command)
                 elif verb == 'kill':
                     self.process_kill(objList, command)
-                elif verb == 'switch':
+                elif verb == 'switch' or verb == 'equip':
                     self.process_switch(objList,command)

@@ -44,7 +44,7 @@ class BasicMovement():
         return spawnMobs
 
     def get_mission_xml(self):
-        spawnMobs = "" #self.spawn_mobs()
+        spawnMobs = self.spawn_mobs()
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <About>
@@ -71,7 +71,7 @@ class BasicMovement():
                             <ServerQuitWhenAnyAgentFinishes/>
                         </ServerHandlers>
                     </ServerSection>
-                    <AgentSection mode="Creative">
+                    <AgentSection mode="Survival">
                         <Name>SpeechToSteve</Name>
                         <AgentStart>
                             <Placement x="0" y="2" z="0" yaw="0"/>
@@ -88,7 +88,7 @@ class BasicMovement():
                             <ContinuousMovementCommands turnSpeedDegs="180"/>
                             <ObservationFromHotBar/>
                             <ObservationFromNearbyEntities>''' +\
-                                "<Range name='Entities' xrange='{}' yrange='{}' zrange='{}'/>".format(self.size, 5, self.size) + \
+                                "<Range name='Entities' xrange='{}' yrange='{}' zrange='{}'/>".format(self.size*2, 5, self.size*2) + \
                             '''</ObservationFromNearbyEntities>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
@@ -177,12 +177,6 @@ class BasicMovement():
     #break block
     def break_block(self, block, num):
         pass
-    
-    #helper function
-    def isLeft(self, a , b , p):      
-        crossProduct = ((b[0]-a[0])*(p[1]-a[1]) - (b[1]-a[1])*(p[0]-a[0])) > 0 #bool only need to know negative or not
-        #print("crossproduct ->", crossProduct)
-        return not crossProduct
 
     #helper function for find_entity
     def get_entityList(self, entity, direction = None):
@@ -204,7 +198,6 @@ class BasicMovement():
             pitch = (agent['pitch'] * -1) * (math.pi / 180)
             a = (agent['x'], agent['z'])
             b = (agent['x'] + self.size * math.cos(yaw) * math.cos(pitch), agent['z'] + self.size * math.sin(yaw) * math.cos(pitch) )
-            #print("YAW -> ", agent['yaw'] + 90)
             print("A->", a)
             print("B->", b)
             leftEntityList = []
@@ -212,7 +205,8 @@ class BasicMovement():
 
             for ent in entityList: 
                 p = (ent[0]['x'], ent[0]['z'])
-                if self.isLeft(a,b,p):
+                isLeft = ((b[0]-a[0])*(p[1]-a[1]) - (b[1]-a[1])*(p[0]-a[0])) < 0
+                if isLeft:
                     print("LEFT ENTITY FOUND")
                     leftEntityList.append(ent)
                 else:
@@ -385,15 +379,17 @@ class BasicMovement():
         time.sleep(length)
         self.agent_host.sendCommand("crouch 0")
     
-    def turn_left(self, length = 0.5):
-        self.agent_host.sendCommand("turn -1")
-        time.sleep(length)
-        self.agent_host.sendCommand("turn 0")
+    def turn_left(self, num = 1):
+        for i in range(num):
+            self.agent_host.sendCommand("turn -1")
+            time.sleep(0.5)
+            self.agent_host.sendCommand("turn 0")
     
-    def turn_right(self, length = 0.5):
-        self.agent_host.sendCommand("turn 1")
-        time.sleep(length)
-        self.agent_host.sendCommand("turn 0")
+    def turn_right(self, num = 1):
+        for i in range(num):
+            self.agent_host.sendCommand("turn 1")
+            time.sleep(0.5)
+            self.agent_host.sendCommand("turn 0")
     
 if __name__ == "__main__":
     test = BasicMovement({})
