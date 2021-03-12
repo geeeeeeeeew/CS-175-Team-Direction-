@@ -37,7 +37,7 @@ class BasicMovement():
 
     def spawn_mobs(self):
         spawnMobs = ''
-        mobs = ['Llama', 'Cow', 'Sheep', 'Chicken', 'PolarBear', 'Pig']
+        mobs = ['Llama', 'Cow', 'Sheep', 'Chicken', 'Horse', 'Pig']
         for mob in mobs:
             for i in range(self.mobCount):
                 spawnMobs += "<DrawEntity x='{}' y='2' z='{}' type='{}'/>".format(randint(-self.size, self.size),randint(-self.size, self.size),mob)
@@ -286,7 +286,7 @@ class BasicMovement():
         while count > 0 and entityList:
             targetEntityID = entityList[dis][0]['id']
             print("SELECTED ENTITY->", entityList[dis][0])
-            while True:
+            while count:
                 entities = self.get_worldstate('Entities')
                 agent = entities[0]
                 for ent in self.get_entityList(entity):
@@ -295,7 +295,8 @@ class BasicMovement():
                         break
                 else:
                     count -= 1
-                    break
+                    print(count)
+                    print("KILLED", num - count, "UNIQUE ENTITIES")
                 
                 diffX = targetEntity['x'] - agent['x']
                 diffZ = targetEntity['z'] - agent['z']
@@ -374,7 +375,7 @@ class BasicMovement():
             time.sleep(0.58)
         self.agent_host.sendCommand("jump 0")
 
-    def crouch(self, length = 2):
+    def crouch(self, length = 1):
         self.agent_host.sendCommand("crouch 1")
         time.sleep(length)
         self.agent_host.sendCommand("crouch 0")

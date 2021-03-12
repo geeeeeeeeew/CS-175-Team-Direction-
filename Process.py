@@ -162,23 +162,26 @@ class Process:
         hotbarList = self.malmo.get_hotbarList()
         item = self.find_obj(objList, ['NOUN'])
         #modifier = self.find_obj(objList, ['ADJ', 'ADV', ])
-        for i in item:
-            print(i)
-            iRight = [w.lemma_ for w in i.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
-            iLeft = [w.lemma_ for w in i.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
-            print(iRight, iLeft)
-            foo = " ".join( iLeft +[i.text] + iRight)
+        if item:
+            for i in item:
+                print(i)
+                iRight = [w.lemma_ for w in i.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iLeft = [w.lemma_ for w in i.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                print(iRight, iLeft)
+                foo = " ".join( iLeft +[i.text] + iRight)
 
-            bestSimilarItem = None
-            bestSimilarity = 0
-            print(hotbarList)
-            for item in hotbarList:
-                similarity = command.similarity_words(foo, item.replace("_", " "))
-                print(similarity)
-                if similarity > bestSimilarity:
-                    bestSimilarItem = item
-                    bestSimilarity = similarity
-        self.malmo.switch_item(bestSimilarItem)
+                bestSimilarItem = None
+                bestSimilarity = 0
+                print(hotbarList)
+                for item in hotbarList:
+                    similarity = command.similarity_words(foo, item.replace("_", " "))
+                    print(similarity)
+                    if similarity > bestSimilarity:
+                        bestSimilarItem = item
+                        bestSimilarity = similarity
+                self.malmo.switch_item(bestSimilarItem)
+        else:
+            print('no item specified')
 
     
     def process_kill(self, objList, command):

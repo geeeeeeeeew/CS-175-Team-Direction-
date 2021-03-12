@@ -4,9 +4,12 @@ import neuralcoref
 #installing neuralcoref:
 #pip install neuralcoref
 #pip install spacy==2.1.0
+#for medium:
 #python -m spacy download en_core_web_md
+#for large:
+#python -m spacy download en_core_web_lg
 
-nlp = spacy.load('en_core_web_md') #use medium sized english model
+nlp = spacy.load('en_core_web_lg') #use medium sized english model 
 #nlp.Defaults.stop_words |= {'a','an','the', 'to'} 
 #nlp.add_pipe(nlp.create_pipe('merge_noun_chunks'))
 #nlp.add_pipe(nlp.create_pipe('merge_entities'))
@@ -15,7 +18,7 @@ neuralcoref.add_to_pipe(nlp)
 class Command:
     filterWords = {'a','an','the', 'to', 'then', 'for', 'in', 'on', 'at', 'by'} #static class atribute
     actions = { 'jump', 'walk', 'crouch', 'run', 'find', 'kill', 'turn', 'switch', 'equip', 'go'}
-    entities = ['llama', 'cow', 'sheep', 'chicken', 'polar bear', 'pig']
+    entities = ['llama', 'cow', 'sheep', 'chicken', 'horse', 'pig']
 
     #used a dict so similarity checks for a category of actions (keys) and then searches for specfic supported actions(values)
     #reduces search to a category of actions instead the entire range of actions
