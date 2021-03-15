@@ -4,9 +4,12 @@ import neuralcoref
 #installing neuralcoref:
 #pip install neuralcoref
 #pip install spacy==2.1.0
+#for medium:
 #python -m spacy download en_core_web_md
+#for large:
+#python -m spacy download en_core_web_lg
 
-nlp = spacy.load('en_core_web_md') #use medium sized english model
+nlp = spacy.load('en_core_web_lg') #use medium sized english model 
 #nlp.Defaults.stop_words |= {'a','an','the', 'to'} 
 #nlp.add_pipe(nlp.create_pipe('merge_noun_chunks'))
 #nlp.add_pipe(nlp.create_pipe('merge_entities'))
@@ -14,7 +17,9 @@ neuralcoref.add_to_pipe(nlp)
 
 class Command:
     filterWords = {'a','an','the', 'to', 'then', 'for', 'in', 'on', 'at', 'by'} #static class atribute
-    actions = {'move': ['jump', 'walk', 'crouch', 'run', 'find']}
+    actions = { 'jump', 'walk', 'crouch', 'run', 'find', 'kill', 'turn', 'switch', 'equip', 'go'}
+    entities = ['llama', 'cow', 'sheep', 'chicken', 'horse', 'pig']
+
     #used a dict so similarity checks for a category of actions (keys) and then searches for specfic supported actions(values)
     #reduces search to a category of actions instead the entire range of actions
 
@@ -113,15 +118,8 @@ class Command:
     def best_similarity(self,word):
         mostSimilar = ""
         mostSimilarProb = 0
-
         doc = nlp(self.rawText)
-        for key in Command.actions.keys():
-            currentProb = nlp(self.rawText.replace(word,key)).similarity(doc)
-            if currentProb > mostSimilarProb:
-                mostSimilar = key
-                mostSimilarProb = currentProb
-        mostSimilarProb = 0 #rest max prob 
-        for action in Command.actions[mostSimilar]:
+        for action in Command.actions:
             currentProb = nlp(self.rawText.replace(word,action)).similarity(doc)
             if currentProb > mostSimilarProb:
                 mostSimilar = action
@@ -140,6 +138,8 @@ class Command:
                 newParseList.append({newKey:objList})
         return newParseList
 
-    #with verb check similarity against obj1 and obj2
-    def similarity_objects(self, verb, obj1, obj2):
-        pass
+    #find similarity (a probability) of word2 against word1 with orginal doc
+    def similarity_words(self, w1, w2):
+        doc = nlp(self.rawText)
+        synonymDoc = nlp( self.rawText.replace(w1, w2))
+        return synonymDoc.similarity(doc)
