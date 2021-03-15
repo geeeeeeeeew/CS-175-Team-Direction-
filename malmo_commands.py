@@ -296,7 +296,15 @@ class SpeechToSteve():
                     time.sleep(0.1)
                     self.agent_host.sendCommand('setPitch 90')
                     time.sleep(0.1)
-                    while self.get_worldstate("LineOfSight")['type'] != block:
+                    while True:
+                        try:
+                            if self.get_worldstate("LineOfSight")['type'] == block:
+                                break
+                            else:
+                                self.agent_host.sendCommand('pitch -0.05')
+                                self.agent_host.sendCommand('turn 1')
+                                time.sleep(0.1)
+                        except KeyError:
                             self.agent_host.sendCommand('pitch -0.05')
                             self.agent_host.sendCommand('turn 1')
                             time.sleep(0.1)
