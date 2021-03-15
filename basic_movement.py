@@ -295,6 +295,65 @@ class BasicMovement():
                 entityList = [i for i in self.get_rightEntityList(entity) if not i[0]['id'] in seenEntities] #get closest entity
         else:
             print('No nearby entites')
+            
+    # finds the nearest block to the agent
+    def findBlock(self, block=None):
+        time.sleep(1)
+        lastWorldState = self.agent_host.peekWorldState()
+        observation = json.loads(lastWorldState.observations[-1].text)
+        agent_x = int(observation['XPos'])
+        agent_z = int(observation['YPos'])
+
+        # generates an array with all blocks in an 81x81 rectangle from the agent
+        grid = observation.get('findBlock')
+
+        # find the index in the array that represents the agent's position
+        center = int(len(grid) / 2)
+        counter = 0
+        candidateBlocks = []
+        print(len(grid))
+        print(center)
+
+        # finds all blocks in the environment that are the same type as the target block
+        # so we can compare their distance from the agent and find the closest one
+        for i in grid:
+            if i == block:
+                candidateBlocks.append(counter)
+                print(i)
+            counter += 1
+
+        if block == None:
+            return
+        elif len(candidateBlocks) == 0:
+            self.agent_host.sendCommand('chat No ' + block + ' found near me!')
+        # find the closest target block to the agent
+        else:
+            target = candidateBlocks[0]
+            distance = abs(target - center)
+            for i in candidateBlocks:
+                if abs(i - center) < distance:
+                    target = i
+                    distance = abs(i - center)
+
+            # find out the position of the block in the 2D array
+            blockRow = int(target / 81)
+            blockColumn = target - (blockRow * 81)
+            # agentRow = 40
+            # agentColumn = 40
+
+            # convert this to a coordinate using the agent's position
+            differenceRow = agent_x + (blockRow - 40)
+            differenceColumn = agent_z + (blockColumn - 40)
+            if blockRow < 40:
+                differenceRow = agent_x - (40 - blockRow)
+            if blockColumn < 40:
+                differenceColumn = agent_z - (40 - blockColumn)
+
+            teleport = 'tp ' + str(differenceColumn) + ' 4 ' + str(differenceRow)
+            self.agent_host.sendCommand(teleport)
+
+            print(differenceRow)
+            print(differenceColumn)
 
     def walk_left(self, distance=1):
         for i in range(distance):
