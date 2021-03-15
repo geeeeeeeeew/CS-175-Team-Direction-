@@ -2,13 +2,14 @@ from speech import record_audio
 from Command import Command
 from Process import Process
 from basic_movement import BasicMovement
+from SpeechToSteve import SpeechToSteve
 from speech_recognition import UnknownValueError
 from speech_recognition import RequestError
 import time
 
 #sample main loop
 if __name__ == "__main__":
-    process = Process(BasicMovement({}))
+    process = Process(SpeechToSteve({}))
     while True:
         try:
             i = input("Ready for command")
