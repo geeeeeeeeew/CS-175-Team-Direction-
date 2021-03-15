@@ -87,6 +87,7 @@ class SpeechToSteve():
                         </AgentStart>
                         <AgentHandlers>
                             <AbsoluteMovementCommands/>
+                            <InventoryCommands/>
                             <ContinuousMovementCommands turnSpeedDegs="180"/>
                             <ObservationFromHotBar/>
                             <ChatCommands/>
@@ -96,10 +97,6 @@ class SpeechToSteve():
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
                             <ObservationFromGrid>
-                                <Grid name="floorAll">
-                                    <min x="-'''+str(int(self.size/2))+'''" y="-1" z="-'''+str(int(self.size/2))+'''"/>
-                                    <max x="'''+str(int(self.size/2))+'''" y="0" z="'''+str(int(self.size/2))+'''"/>
-                                </Grid>
                                 <Grid name="findBlock">
                                     <min x="-40" y="0" z="-40"/>
                                     <max x="40" y="0" z="40"/>
@@ -175,37 +172,21 @@ class SpeechToSteve():
                 self.agent_host.sendCommand(release)
                 break
         else:
-            print("item not found")
+            self.agent_host.sendCommand('chat Item, ' + item + ', not in hotbar!')
 
     #find block
-    def findBlock(self, block=None):
-        entities = self.get_worldstate('Entities')
-        agent = entities[0]
-        agent_x = agent['x']
-        agent_z = agent['z']
-        # generates an array with all blocks in an 81x81 rectangle from the agent
-        lastWorldState = self.agent_host.peekWorldState()
-        observation = json.loads(lastWorldState.observations[-1].text)
-        grid = observation.get('findBlock')
+    def find_block(self, block):
+        grid = self.get_worldstate('findBlock')
+        candidateBlocks = [i for i,b in enumerate(grid) if b == block]
 
-        # find the index in the array that represents the agent's position
-        center = int(len(grid) / 2)
-        counter = 0
-        candidateBlocks = []
-
-        # finds all blocks in the environment that are the same type as the target block
-        # so we can compare their distance from the agent and find the closest one
-        for i in grid:
-            if i == block:
-                candidateBlocks.append(counter)
-            counter += 1
-
-        if block == None:
-            return
-        elif len(candidateBlocks) == 0:
-            self.agent_host.sendCommand('chat No ' + block + ' found near me!')
-        # find the closest target block to the agent
-        else:
+        if candidateBlocks:
+            entities = self.get_worldstate('Entities')
+            agent = entities[0]
+            agent_x = agent['x']
+            agent_z = agent['z']
+            center = int(len(grid) / 2)
+                
+            # find the closest target block to the agent
             target = candidateBlocks[0]
             distance = abs(target - center)
             for i in candidateBlocks:
@@ -249,16 +230,99 @@ class SpeechToSteve():
 
                 if distance <= 2:
                     break
-
                 previousDistance = distance
-
-            # print(differenceRow)
-            # print(differenceColumn)
-
+        else:
+            self.agent_host.sendCommand('chat No ' + block + ' found near me!')
 
     #break block
-    def break_block(self, block, num):
-        pass
+    def break_block(self, block, item = None):
+        grid = self.get_worldstate('findBlock')
+        candidateBlocks = [i for i,b in enumerate(grid) if b == block]
+
+        print(item)
+        if item != None:
+            self.switch_item(item)
+
+        if candidateBlocks:
+            entities = self.get_worldstate('Entities')
+            agent = entities[0]
+            agent_x = agent['x']
+            agent_z = agent['z']
+            center = int(len(grid) / 2)
+                
+            # find the closest target block to the agent
+            target = candidateBlocks[0]
+            distance = abs(target - center)
+            for i in candidateBlocks:
+                if abs(i - center) < distance:
+                    target = i
+                    distance = abs(i - center)
+
+            # find out the position of the block in the 2D array
+            blockRow = int(target / 81)
+            blockColumn = target - (blockRow * 81)
+            # agentRow = 40
+            # agentColumn = 40
+
+            # convert this to a coordinate using the agent's position
+            differenceRow = agent_z + (blockRow - 40)
+            differenceColumn = agent_x + (blockColumn - 40)
+            if blockRow < 40:
+                differenceRow = agent_z - (40 - blockRow)
+            if blockColumn < 40:
+                differenceColumn = agent_x - (40 - blockColumn)
+
+            previousDistance = -1
+            while True:
+                entities = self.get_worldstate('Entities')
+                agent = entities[0]
+
+                diffX = differenceColumn - agent['x']
+                diffZ = differenceRow - agent['z']
+
+                distance = math.floor(math.sqrt(abs(diffX)**2 + abs(diffZ)**2))
+                yaw = -180 * math.atan2(diffX, diffZ) / math.pi
+                self.agent_host.sendCommand("setYaw {}".format(yaw))
+
+                # the agent is stuck at a block, and we need to jump over it
+                if distance == previousDistance:
+                    self.agent_host.sendCommand('jump 1')
+                    self.run_forward(math.ceil(distance/2))
+                    self.agent_host.sendCommand('jump 0')
+                else:
+                    self.run_forward(math.ceil(distance/2))
+
+                if distance <= 1:                    
+                    time.sleep(0.1)
+                    self.agent_host.sendCommand('setPitch 90')
+                    time.sleep(0.1)
+                    while self.get_worldstate("LineOfSight")['type'] != block:
+                            self.agent_host.sendCommand('pitch -0.05')
+                            self.agent_host.sendCommand('turn 1')
+                            time.sleep(0.1)
+                    self.agent_host.sendCommand('turn 0')
+                    self.agent_host.sendCommand('pitch 0')
+                    time.sleep(1)
+                    grid = self.get_worldstate('findBlock')
+                    foo = len([i for i,b in enumerate(grid) if b == block])
+                    while True: #break block
+                        bar = len([i for i,b in enumerate(grid) if b == block])
+                        time.sleep(0.1)
+                        self.agent_host.sendCommand("attack 1")
+                        time.sleep(0.1)
+                        grid = self.get_worldstate('findBlock')            
+                        print(foo,bar)
+                        if bar != foo:
+                            break
+                    time.sleep(0.1)
+                    self.agent_host.sendCommand('setPitch 0')
+                    time.sleep(0.1)
+                    self.agent_host.sendCommand("attack 0")
+                    break
+
+                previousDistance = distance
+        else:
+            self.agent_host.sendCommand('chat No ' + block + ' found near me!')
 
     #helper function for find_entity
     def get_entityList(self, entity, direction = None):
@@ -352,7 +416,8 @@ class SpeechToSteve():
                     break
             entityList = [i for i in self.get_entityList(entity, direction) if not i[0]['id'] in seenEntities] #get sorted entity list
         else:
-            print('No nearby entites')
+            if count > 0:
+                self.agent_host.sendCommand('chat No ' + entity + ' found near me!')
     
     #kill specified entity
     def kill_entity(self, entity, num = 1, dis = 0, direction = None, item = None):
@@ -401,7 +466,9 @@ class SpeechToSteve():
                     
             entityList = [i for i in self.get_entityList(entity, direction) if not i[0]['id'] in seenEntities] #get sorted entity list
         else:
-            print('No nearby entites')
+            if count > 0:
+                self.agent_host.sendCommand('chat No ' + entity + ' found near me!')
+
 
     def walk_left(self, distance=1):
         for i in range(distance):
@@ -476,9 +543,5 @@ class SpeechToSteve():
     
 if __name__ == "__main__":
     test = SpeechToSteve({})
-    
     time.sleep(0.5)
-    print(test.get_worldstate("floorAll"))
-    test.turn_left()
-    test.turn_right()
-    test.kill_entity('cow', 3, -1, 'right','diamond_axe')
+    test.break_block('iron_ore', 'diamond_pickaxe')
