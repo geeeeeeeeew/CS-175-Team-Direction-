@@ -2,7 +2,7 @@ from speech import record_audio
 from Command import Command
 from Process import Process
 from basic_movement import BasicMovement
-from SpeechToSteve import SpeechToSteve
+from malmo_commmands import SpeechToSteve
 from speech_recognition import UnknownValueError
 from speech_recognition import RequestError
 import time
