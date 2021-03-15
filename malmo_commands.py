@@ -228,7 +228,7 @@ class SpeechToSteve():
                 else:
                     self.run_forward(math.ceil(distance/2))
 
-                if distance <= 2:
+                if distance <= 1:
                     break
                 previousDistance = distance
         else:
@@ -300,10 +300,9 @@ class SpeechToSteve():
                         try:
                             if self.get_worldstate("LineOfSight")['type'] == block:
                                 break
-                            else:
-                                self.agent_host.sendCommand('pitch -0.05')
-                                self.agent_host.sendCommand('turn 1')
-                                time.sleep(0.1)
+                            self.agent_host.sendCommand('pitch -0.05')
+                            self.agent_host.sendCommand('turn 1')
+                            time.sleep(0.1)
                         except KeyError:
                             self.agent_host.sendCommand('pitch -0.05')
                             self.agent_host.sendCommand('turn 1')
@@ -319,7 +318,6 @@ class SpeechToSteve():
                         self.agent_host.sendCommand("attack 1")
                         time.sleep(0.1)
                         grid = self.get_worldstate('findBlock')            
-                        print(foo,bar)
                         if bar != foo:
                             break
                     time.sleep(0.1)

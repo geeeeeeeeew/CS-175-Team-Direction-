@@ -1,4 +1,4 @@
-from basic_movement import BasicMovement
+#from basic_movement import BasicMovement
 from malmo_commands import SpeechToSteve
 from Command import Command
 import time
@@ -106,7 +106,7 @@ class Process:
 
     #find the furthest pig to the right and kill it with a diamond shovel
     def process_find(self, objList, command):
-        entity = self.find_obj(objList, ['NOUN'])
+        objects = self.find_obj(objList, ['NOUN'])
         modifier = self.find_obj(objList, ['ADJ', 'ADV'])
         directionList = self.find_obj(objList)
         times = self.parse_numerical(objList)
@@ -143,19 +143,26 @@ class Process:
         print("dir",direction)
         print("dist", mostSimilarDist)
 
-        if entity:
+        if objects:
             print("find")
             #find most similar entity:
-            mostSimilarEnt = None
+            mostSimilarObj = None
             bestSimilarity = 0
-            for ent in entity:
-                for foo in command.entities:
-                    similarity = command.similarity_words(ent.lemma_, foo)
+            for obj in objects:
+                iRight = [w.lemma_ for w in obj.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iLeft = [w.lemma_ for w in obj.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                i = " ".join( iLeft +[obj.lemma_] + iRight)
+                for foo in command.entities + command.blocks:
+                    similarity = command.similarity_words(i, foo)
                     if similarity > bestSimilarity:
-                        mostSimilarEnt = foo
+                        mostSimilarObj = foo
                         bestSimilarity = similarity
-                print("entity ->", mostSimilarEnt)
-                self.malmo.find_entity(mostSimilarEnt, times, dis = mostSimilarDist, direction = direction)
+                print("obj->", mostSimilarObj)
+                mostSimilarObj = mostSimilarObj.replace(" ", "_")
+                if mostSimilarObj in command.entities:
+                    self.malmo.find_entity(mostSimilarObj, times, dis = mostSimilarDist, direction = direction)
+                else:
+                    self.malmo.find_block(mostSimilarObj)
         else:
             print('no entity specified')
 
@@ -184,9 +191,8 @@ class Process:
         else:
             print('no item specified')
 
-    
     def process_kill(self, objList, command):
-        entity = self.find_obj(objList, ['NOUN'])
+        objects = self.find_obj(objList, ['NOUN'])
         item = self.find_obj(objList, ['NOUN'], ['pobj']) # kill [entity] with [item]
         modifier = self.find_obj(objList, ['ADJ', 'ADV'])
         directionList = self.find_obj(objList)
@@ -238,21 +244,67 @@ class Process:
         print("dir",direction)
         print("dist", mostSimilarDist)
 
-        if entity:
+        if objects:
             print("kill")
             #find most similar entity:
-            mostSimilarEnt = None
+            mostSimilarObj = None
             bestSimilarity = 0
-            for ent in entity:
-                for foo in command.entities:
-                    similarity = command.similarity_words(ent.lemma_, foo)
+            for obj in objects:
+                iRight = [w.lemma_ for w in obj.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iLeft = [w.lemma_ for w in obj.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                i = " ".join( iLeft +[obj.lemma_] + iRight)
+                for foo in command.entities + command.blocks:
+                    similarity = command.similarity_words(i, foo)
                     if similarity > bestSimilarity:
-                        mostSimilarEnt = foo
+                        mostSimilarObj = foo
                         bestSimilarity = similarity
-                print("entity ->", mostSimilarEnt)
-                self.malmo.kill_entity(mostSimilarEnt, times, dis = mostSimilarDist, direction = direction, item = bestSimilarItem)
+                print("obj->", mostSimilarObj)
+                mostSimilarObj = mostSimilarObj.replace(" ", "_")
+            if mostSimilarObj in command.entities:
+                self.malmo.kill_entity(mostSimilarObj, times, dis = mostSimilarDist, direction = direction, item = bestSimilarItem)
+            else:
+                self.malmo.break_block(mostSimilarObj, item = bestSimilarItem)
         else:
-            print('no entity specified')
+            print('no object specified')
+    
+    def process_break(self, objList, command):
+        objects = self.find_obj(objList, ['NOUN'])
+        item = self.find_obj(objList, ['NOUN'], ['pobj']) # kill [entity] with [item]
+
+        bestSimilarItem = None
+        bestSimilarity = 0
+        if item:
+            hotbarList = self.malmo.get_hotbarList()
+            for i in item:
+                iRight = [w.lemma_ for w in i.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iLeft = [w.lemma_ for w in i.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                foo = " ".join( iLeft +[i.text] + iRight)
+
+                for item in hotbarList:
+                    similarity = command.similarity_words(foo, item.replace("_", " "))
+                    if similarity > bestSimilarity:
+                        bestSimilarItem = item
+                        bestSimilarity = similarity
+        if objects:
+            print("break")
+            #find most similar entity:
+            mostSimilarObj = None
+            bestSimilarity = 0
+            for obj in objects:
+                iRight = [w.lemma_ for w in obj.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iLeft = [w.lemma_ for w in obj.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                i = " ".join( iLeft +[obj.lemma_] + iRight)
+                for foo in command.blocks:
+                    similarity = command.similarity_words(i, foo)
+                    if similarity > bestSimilarity:
+                        mostSimilarObj = foo
+                        bestSimilarity = similarity
+                print("obj->", mostSimilarObj)
+                mostSimilarObj = mostSimilarObj.replace(" ", "_")
+            self.malmo.break_block(mostSimilarObj, item = bestSimilarItem)
+        else:
+            print("no object specified")
+    
 
     #the basic flow is to iterate through all the dicts parseList contains
     #then process the objList ties to the verb
@@ -274,6 +326,8 @@ class Process:
                     self.process_crouch(objList, command)
                 elif verb == "find" or verb == 'go':
                     self.process_find(objList, command)
+                elif verb == 'break' or verb == 'mine':
+                    self.process_break(objList, command)
                 elif verb == 'kill':
                     self.process_kill(objList, command)
                 elif verb == 'switch' or verb == 'equip':
