@@ -1,4 +1,5 @@
 from basic_movement import BasicMovement
+from SpeechToSteve import SpeechToSteve
 from Command import Command
 import time
 
