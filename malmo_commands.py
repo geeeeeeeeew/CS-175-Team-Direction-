@@ -620,7 +620,7 @@ class SpeechToSteve():
                 self.agent_host.sendCommand("craft cooked_beef")
                 time.sleep(1)
             print("Ingredient Not Found...")
-        if raw_meat == "chicken":
+        elif raw_meat == "chicken":
             if checkInventoryForItem(ob, "chicken"):
                 print("craft cooked_chicken")
                 self.agent_host.sendCommand("craft cooked_chicken")
