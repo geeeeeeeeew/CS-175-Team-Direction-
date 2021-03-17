@@ -79,10 +79,11 @@ class SpeechToSteve():
                         <AgentStart>
                             <Placement x="0" y="2" z="0" yaw="0"/>
                             <Inventory>
-                                <InventoryItem slot="0" type="diamond_sword"/>
-                                <InventoryItem slot="1" type="diamond_pickaxe"/>
-                                <InventoryItem slot="2" type="diamond_axe"/>
-                                <InventoryItem slot="3" type="diamond_shovel"/>
+                                <InventoryItem slot="0" type="coal"/>
+                                <InventoryItem slot="1" type="diamond_sword"/>
+                                <InventoryItem slot="2" type="diamond_pickaxe"/>
+                                <InventoryItem slot="3" type="diamond_axe"/>
+                                <InventoryItem slot="4" type="diamond_shovel"/>
                             </Inventory>
                         </AgentStart>
                         <AgentHandlers>
