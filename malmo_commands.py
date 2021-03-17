@@ -603,6 +603,7 @@ class SpeechToSteve():
         if raw_meat == "mutton" or raw_meat == "sheep":
             if checkInventoryForItem(ob, "mutton"):
                 print("craft cooked_mutton")
+                self.checkFuelPosition()
                 self.agent_host.sendCommand("craft cooked_mutton")
                 time.sleep(1)
             else:
@@ -610,6 +611,7 @@ class SpeechToSteve():
         elif raw_meat == "pig" or raw_meat == "porkchop":
             if checkInventoryForItem(ob, "porkchop"):
                 print("craft cooked_porkchop")
+                self.checkFuelPosition()
                 self.agent_host.sendCommand("craft cooked_porkchop")
                 time.sleep(1)
             else:
@@ -617,12 +619,14 @@ class SpeechToSteve():
         elif raw_meat == "beef" or raw_meat == "steak":
             if checkInventoryForItem(ob, "beef"):
                 print("craft cooked_beef")
+                self.checkFuelPosition()
                 self.agent_host.sendCommand("craft cooked_beef")
                 time.sleep(1)
             print("Ingredient Not Found...")
         elif raw_meat == "chicken":
             if checkInventoryForItem(ob, "chicken"):
                 print("craft cooked_chicken")
+                self.checkFuelPosition()
                 self.agent_host.sendCommand("craft cooked_chicken")
                 time.sleep(1)
             print("Ingredient Not Found...")
