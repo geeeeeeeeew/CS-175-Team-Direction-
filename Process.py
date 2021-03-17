@@ -211,10 +211,11 @@ class Process:
                 foo = " ".join( iLeft +[i.text] + iRight)
 
                 for item in hotbarList:
-                    similarity = command.similarity_words(foo, item.replace("_", " "))
-                    if similarity > bestSimilarity:
-                        bestSimilarItem = item
-                        bestSimilarity = similarity
+                    if item != 'air':
+                        similarity = command.similarity_words(foo, item.replace("_", " "))
+                        if similarity > bestSimilarity:
+                            bestSimilarItem = item
+                            bestSimilarity = similarity
             
         #check for direction modifier
         direction = None
@@ -281,10 +282,11 @@ class Process:
                 foo = " ".join( iLeft +[i.text] + iRight)
 
                 for item in hotbarList:
-                    similarity = command.similarity_words(foo, item.replace("_", " "))
-                    if similarity > bestSimilarity:
-                        bestSimilarItem = item
-                        bestSimilarity = similarity
+                    if item != 'air':
+                        similarity = command.similarity_words(foo, item.replace("_", " "))
+                        if similarity > bestSimilarity:
+                            bestSimilarItem = item
+                            bestSimilarity = similarity
         if objects:
             print("break")
             #find most similar entity:
@@ -304,8 +306,21 @@ class Process:
             self.malmo.break_block(mostSimilarObj, item = bestSimilarItem)
         else:
             print("no object specified")
-    
 
+    def process_cook(self, objList, command):
+        objects = self.find_obj(objList, ['NOUN'], ['dobj'])
+        mostSimilarObj = None
+        bestSimilarity = 0
+        for obj in objects:
+            for food in command.food:
+                similarity = command.similarity_words(obj.lemma_, food)
+                if similarity > bestSimilarity:
+                        mostSimilarObj = food
+                        bestSimilarity = similarity
+            print("obj->", mostSimilarObj)
+            mostSimilarObj = mostSimilarObj.replace(" ", "_")
+        self.malmo.cook_food(mostSimilarObj)
+    
     #the basic flow is to iterate through all the dicts parseList contains
     #then process the objList ties to the verb
     #depending on the verb, process the objlist differently
@@ -326,9 +341,11 @@ class Process:
                     self.process_crouch(objList, command)
                 elif verb == "find" or verb == 'go':
                     self.process_find(objList, command)
-                elif verb == 'break' or verb == 'mine':
+                elif verb == 'break':
                     self.process_break(objList, command)
                 elif verb == 'kill':
                     self.process_kill(objList, command)
                 elif verb == 'switch' or verb == 'equip':
                     self.process_switch(objList,command)
+                elif verb == 'cook':
+                    self.process_cook(objList, command)

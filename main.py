@@ -1,20 +1,19 @@
 from speech import record_audio
 from Command import Command
 from Process import Process
-from basic_movement import BasicMovement
-from malmo_commmands import SpeechToSteve
+#from basic_movement import BasicMovement
+from malmo_commands import SpeechToSteve
 from speech_recognition import UnknownValueError
 from speech_recognition import RequestError
 import time
 
-#sample main loop
 if __name__ == "__main__":
     process = Process(SpeechToSteve({}))
     while True:
         try:
             i = input("Ready for command")
             command =  record_audio() 
-            #command = str(input("Type your command: ")) #for keyboard input, uncomment this line and comment out line 10
+            #command = str(input("Type your command: ")) #keyboard input
             command = Command(command)
 
             print("raw_text", command.rawText)

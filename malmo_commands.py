@@ -322,6 +322,7 @@ class SpeechToSteve():
                         grid = self.get_worldstate('findBlock')            
                         if bar != foo:
                             break
+                    self.walk_forward()
                     time.sleep(0.1)
                     self.agent_host.sendCommand('setPitch 0')
                     time.sleep(0.1)
@@ -598,62 +599,91 @@ class SpeechToSteve():
         return False
 
     def cook_food(self, raw_meat):
-        # time.sleep(0.2)
-
+        time.sleep(0.1)
         if raw_meat == "mutton" or raw_meat == "sheep":
             if self.checkInventoryForItem("mutton"):
+                time.sleep(0.1)
                 self.agent_host.sendCommand('chat Cooking mutton!')
+                time.sleep(0.1)
                 self.checkFuel()
+                time.sleep(0.1)
                 self.agent_host.sendCommand("craft cooked_mutton")
 
             else:
                 self.agent_host.sendCommand('chat Missing ingredients.')
+                time.sleep(0.1)
                 self.agent_host.sendCommand('chat Trying to look for a sheep near me!')
+                time.sleep(0.1)
                 self.kill_entity('sheep', item='diamond_sword')
+                time.sleep(0.1)
                 self.checkFuel()
+                time.sleep(0.1)
                 self.agent_host.sendCommand('chat Cooking mutton!')
+                time.sleep(0.1)
                 self.agent_host.sendCommand("craft cooked_mutton")
 
         elif raw_meat == "pig" or raw_meat == "porkchop":
             if self.checkInventoryForItem("porkchop"):
+                time.sleep(0.1)
                 self.agent_host.sendCommand('chat Cooking porkchops!')
+                time.sleep(0.1)
                 self.checkFuel()
+                time.sleep(0.1)
                 self.agent_host.sendCommand("craft cooked_porkchop")
                 
             else:
                 self.agent_host.sendCommand('chat Missing ingredients.')
+                time.sleep(0.1)
                 self.agent_host.sendCommand('chat Trying to look for a pig near me!')
+                time.sleep(0.1)
                 self.kill_entity('pig', item='diamond_sword')
+                time.sleep(0.1)
                 self.checkFuel()
+                time.sleep(0.1)
                 self.agent_host.sendCommand('chat Cooking porkchops!')
+                time.sleep(0.1)
                 self.agent_host.sendCommand("craft cooked_porkchop")
 
         elif raw_meat == "beef" or raw_meat == "steak":
             if self.checkInventoryForItem("beef"):
                 self.agent_host.sendCommand('chat Cooking steak!')
+                time.sleep(0.1)
                 self.checkFuel()
+                time.sleep(0.1)
                 self.agent_host.sendCommand("craft cooked_beef")
                 
             else:
                 self.agent_host.sendCommand('chat Missing ingredients.')
+                time.sleep(0.1)
                 self.agent_host.sendCommand('chat Trying to look for a cow near me!')
+                time.sleep(0.1)
                 self.kill_entity('cow', item='diamond_sword')
+                time.sleep(0.1)
                 self.checkFuel()
+                time.sleep(0.1)
                 self.agent_host.sendCommand('chat Cooking steak!')
+                time.sleep(0.1)
                 self.agent_host.sendCommand("craft cooked_beef")
 
         elif raw_meat == "chicken":
             if self.checkInventoryForItem("chicken"):
                 self.agent_host.sendCommand('chat Cooking chicken!')
+                time.sleep(0.1)
                 self.checkFuel()
+                time.sleep(0.1)
                 self.agent_host.sendCommand("craft cooked_chicken")
                 
             else:
                 self.agent_host.sendCommand('chat Missing ingredients.')
+                time.sleep(0.1)
                 self.agent_host.sendCommand('chat Trying to look for a chicken near me!')
+                time.sleep(0.1)
                 self.kill_entity('chicken', item='diamond_sword')
+                time.sleep(0.1)
                 self.checkFuel()
+                time.sleep(0.1)
                 self.agent_host.sendCommand('chat Cooking chicken!')
+                time.sleep(0.1)
                 self.agent_host.sendCommand("craft cooked_chicken")
         
 
