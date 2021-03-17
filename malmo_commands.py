@@ -79,11 +79,10 @@ class SpeechToSteve():
                         <AgentStart>
                             <Placement x="0" y="2" z="0" yaw="0"/>
                             <Inventory>
-                                <InventoryItem slot="0" type="coal"/>
-                                <InventoryItem slot="1" type="diamond_sword"/>
-                                <InventoryItem slot="2" type="diamond_pickaxe"/>
-                                <InventoryItem slot="3" type="diamond_axe"/>
-                                <InventoryItem slot="4" type="diamond_shovel"/>
+                                <InventoryItem slot="0" type="diamond_sword"/>
+                                <InventoryItem slot="1" type="diamond_pickaxe"/>
+                                <InventoryItem slot="2" type="diamond_axe"/>
+                                <InventoryItem slot="3" type="diamond_shovel"/>
                             </Inventory>
                         </AgentStart>
                         <AgentHandlers>
@@ -91,6 +90,7 @@ class SpeechToSteve():
                             <InventoryCommands/>
                             <ContinuousMovementCommands turnSpeedDegs="180"/>
                             <ObservationFromHotBar/>
+                            <SimpleCraftCommands/>
                             <ChatCommands/>
                             <ObservationFromNearbyEntities>''' +\
                                 "<Range name='Entities' xrange='{}' yrange='{}' zrange='{}'/>".format(self.size, self.size, self.size) + \
@@ -237,6 +237,7 @@ class SpeechToSteve():
 
     #break block
     def break_block(self, block, item = None):
+        time.sleep(0.5)
         grid = self.get_worldstate('findBlock')
         candidateBlocks = [i for i,b in enumerate(grid) if b == block]
 
@@ -428,6 +429,7 @@ class SpeechToSteve():
     
     #kill specified entity
     def kill_entity(self, entity, num = 1, dis = 0, direction = None, item = None):
+        # time.sleep(0.5)
         count = num
         seenEntities = []
         entityList = self.get_entityList(entity, direction)
@@ -475,6 +477,7 @@ class SpeechToSteve():
         else:
             if count > 0:
                 self.agent_host.sendCommand('chat No ' + entity + ' found near me!')
+                return False
 
 
     def walk_left(self, distance=1):
@@ -568,21 +571,15 @@ class SpeechToSteve():
                 print(obs[col_key], end=' ')
             print()
     
-    def checkFuelPosition(self):
+    def checkFuel(self):
     #Make sure our coal, if we have any, is in slot 0
     # (We need to do this because the furnace crafting commands - cooking the potato and the rabbit -
     # take the first available item of fuel in the inventory. If this isn't the coal, it could end up burning the wood
     # that we need for making the bowl.)
-        world_state = self.agent_host.getWorldState()
-        msg = world_state.observations[-1].text
-        obs = json.loads(msg)
-        for i in range(1,39):
-            key = 'InventorySlot_'+str(i)+'_item'
-            if key in obs:
-                item = obs[key]
-                if item == 'coal':
-                    self.agent_host.sendCommand("swapInventoryItems 0 " + str(i))
-                    return
+        if not self.checkInventoryForItem('coal'):
+            self.agent_host.sendCommand('chat No coal in inventory!')
+            self.agent_host.sendCommand('chat Looking for coal.')
+            self.break_block('coal_ore', item='diamond_pickaxe')
 
     # entities = ['llama', 'cow', 'sheep', 'chicken', 'horse', 'pig']
     # namespace = ["mutton", "chicken", "porkchop", "beef"]
@@ -601,40 +598,68 @@ class SpeechToSteve():
         return False
 
     def cook_food(self, raw_meat):
+        # time.sleep(0.2)
+
         if raw_meat == "mutton" or raw_meat == "sheep":
-            if checkInventoryForItem(ob, "mutton"):
-                print("craft cooked_mutton")
-                self.checkFuelPosition()
+            if self.checkInventoryForItem("mutton"):
+                self.agent_host.sendCommand('chat Cooking mutton!')
+                self.checkFuel()
                 self.agent_host.sendCommand("craft cooked_mutton")
-                time.sleep(1)
+
             else:
-                print("Ingredient Not Found...")
+                self.agent_host.sendCommand('chat Missing ingredients.')
+                self.agent_host.sendCommand('chat Trying to look for a sheep near me!')
+                self.kill_entity('sheep', item='diamond_sword')
+                self.checkFuel()
+                self.agent_host.sendCommand('chat Cooking mutton!')
+                self.agent_host.sendCommand("craft cooked_mutton")
+
         elif raw_meat == "pig" or raw_meat == "porkchop":
-            if checkInventoryForItem(ob, "porkchop"):
-                print("craft cooked_porkchop")
-                self.checkFuelPosition()
+            if self.checkInventoryForItem("porkchop"):
+                self.agent_host.sendCommand('chat Cooking porkchops!')
+                self.checkFuel()
                 self.agent_host.sendCommand("craft cooked_porkchop")
-                time.sleep(1)
+                
             else:
-                print("Ingredient Not Found...")
+                self.agent_host.sendCommand('chat Missing ingredients.')
+                self.agent_host.sendCommand('chat Trying to look for a pig near me!')
+                self.kill_entity('pig', item='diamond_sword')
+                self.checkFuel()
+                self.agent_host.sendCommand('chat Cooking porkchops!')
+                self.agent_host.sendCommand("craft cooked_porkchop")
+
         elif raw_meat == "beef" or raw_meat == "steak":
-            if checkInventoryForItem(ob, "beef"):
-                print("craft cooked_beef")
-                self.checkFuelPosition()
+            if self.checkInventoryForItem("beef"):
+                self.agent_host.sendCommand('chat Cooking steak!')
+                self.checkFuel()
                 self.agent_host.sendCommand("craft cooked_beef")
-                time.sleep(1)
-            print("Ingredient Not Found...")
+                
+            else:
+                self.agent_host.sendCommand('chat Missing ingredients.')
+                self.agent_host.sendCommand('chat Trying to look for a cow near me!')
+                self.kill_entity('cow', item='diamond_sword')
+                self.checkFuel()
+                self.agent_host.sendCommand('chat Cooking steak!')
+                self.agent_host.sendCommand("craft cooked_beef")
+
         elif raw_meat == "chicken":
-            if checkInventoryForItem(ob, "chicken"):
-                print("craft cooked_chicken")
-                self.checkFuelPosition()
+            if self.checkInventoryForItem("chicken"):
+                self.agent_host.sendCommand('chat Cooking chicken!')
+                self.checkFuel()
                 self.agent_host.sendCommand("craft cooked_chicken")
-                time.sleep(1)
-            print("Ingredient Not Found...")
+                
+            else:
+                self.agent_host.sendCommand('chat Missing ingredients.')
+                self.agent_host.sendCommand('chat Trying to look for a chicken near me!')
+                self.kill_entity('chicken', item='diamond_sword')
+                self.checkFuel()
+                self.agent_host.sendCommand('chat Cooking chicken!')
+                self.agent_host.sendCommand("craft cooked_chicken")
         
 
 if __name__ == "__main__":
     test = SpeechToSteve({})
     time.sleep(0.5)
     #test.break_block('iron_ore', 'diamond_pickaxe')
-    test.print_inventory()
+    #test.print_inventory()
+    test.cook_food('chicken')
