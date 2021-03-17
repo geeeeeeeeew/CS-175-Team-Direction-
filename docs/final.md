@@ -8,7 +8,8 @@ title: Final Report
 
 ## Project Summary
 
-The main idea of our project is using Python to implement a way for the user to control the AI agent via speech. We used natural language processing to convert audio into commands, and let the agent perform all of them in Minecraft. For example, saying “kill the cow, find a goat and then move backwards for 6 steps” into a microphone would create 3 commands: "kill cow", "find goat", and "move backwards(6)", which automatically call the responding functions and let the agent to execute these commands. To accomplish this, we first converted speech to text using SpeechRecognition, and then converted the text into commands using spaCy, a library for advanced NLP, so that the agent can perform using Malmo.
+The main idea of our project is using Python to implement a way for the user to control the AI agent via speech. At a high level, this is implemented by taking speech from the user and coverting it into text using Google SpeechRecognition, and using NLP libraries spaCy to parse and process the text to parameters, which will be fed to the commands in malmo. In addition, we implemented similarity check to the objects and multistep commands. This allows our agent, for example, understanding that stallions and horses are the same, or jumping exactly 10 times if such commands are given. 
+
 
 #### Language: Python
 #### Library Support: 
@@ -28,9 +29,38 @@ The main idea of our project is using Python to implement a way for the user to 
 || Swtich item|
 || Combination of basic and advanced commands|
 
-what we can achieve
-why need Spacy?
-why need NeuralCoref?
-why not hard code?
-image
-evaluation method 
+## Evaluation
+We will evaluate the success of our project based on the complexity of the commands we can implement accurately and how well the agent performs tasks. There are different tiers of difficulty for commands: “walk to the right” is much easier to implement than “find and mine a diamond.” We are aiming to implement commands that are pretty complex and interact with the environment (e.g. “place down a dirt block to the left,” “take a gold ingot from the chest”), with a moonshot case being extremely complex commands that need contextual understanding (e.g. “enter the third house on the right”).
+
+### Quantitative:
+We intend to evaluate our success quantitatively by measuring the accuracy of our voice commands. In other words, we will calculate the proportion of successfully recognized voice commands to the total number of voice commands given. We will also calculate the command completion rate (e.g. the agent actually moves north when given the command to go north, the agent can recognize objects in Minecraft successfully).
+ 
+### Qualitative:
+We intend to evaluate our success qualitatively by visually checking if the agent can actually perform commands. For example, we will check if the agent actually moves 5 blocks to the left if it is given the command “walk 5 blocks left.”
+
+
+| Single Command  | Multiple | Synonym | 
+| -------------   | ------------- |  ------------- |
+|walk to the left for 10 steps  | walk 10 steps, then run 10 steps to the right, and then jump 5 times |hurdle 5 times go forward for 10 blocks |
+| Voice Recognized | Voice Recognized  | Voice Recognized |
+| Command Excecuted Successfully | Command Excecuted Successfully   | Command Excecuted Successfully  |
+  
+
+
+## Resources Used
+- [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)\
+library for performing speech recognition
+- [PyAudio](https://pypi.org/project/PyAudio/)\
+record audio input from microphone
+- [spaCy](https://spacy.io/usage/spacy-10z)\
+information extraction and natural language understanding
+- [NeuralCoref](https://github.com/huggingface/neuralcoref/pulls)\
+a pipeline extension for spaCy 2.1+ which annotates and resolves coreference clusters using a neural network
+
+## References
+- David M. Bignell. craft_work.py https://github.com/microsoft/malmo/blob/master/Malmo/samples/Python_examples/craft_work.py (2018)
+- Food -Official Minecraft Wiki https://minecraft.gamepedia.com/Food
+
+
+
+
