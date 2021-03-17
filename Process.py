@@ -187,7 +187,7 @@ class Process:
                     if similarity > bestSimilarity:
                         bestSimilarItem = item
                         bestSimilarity = similarity
-                self.malmo.switch_item(bestSimilarItem)
+            self.malmo.switch_item(bestSimilarItem)
         else:
             print('no item specified')
 
