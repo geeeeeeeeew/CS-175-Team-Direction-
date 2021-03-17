@@ -32,16 +32,16 @@ The main idea of our project is using Python to implement a way for the user to 
 ## Evaluation
 We will evaluate the success of our project based on the complexity of the commands we can implement accurately and how well the agent performs tasks. There are different tiers of difficulty for commands: “Find a sheep” is much easier to implement than “Find a sheep and kill it with diamond sword, then cook it”. We are aiming to implement commands that are pretty complex and interact with the environment (e.g. “break a coal block”), with a moonshot case being extremely complex commands that need contextual understanding (e.g. “enter the third house on the right”).
 
-#### Qualitative:
+### Qualitative:
 We intend to evaluate our success qualitatively by visually checking if the agent can actually perform commands. For example, we will check if the the agent actually moves 5 blocks to the left if it is given the command “walk 5 blocks left". 
 
-#### Quantitative:
+### Quantitative:
 We intend to evaluate our success quantitatively by measuring the accuracy of our voice commands and command completion rate. In other words, we will calculate the proportion of successfully recognized voice commands to the total number of voice commands given, and proportion of correctly executed commands to the total successfully recognized voice commands. (e.g. the agent actually moves north when given the command to go north, the agent can recognize objects in Minecraft successfully). 
 
-#####  Basic Commands
+###  Basic Commands
 We tested 50 basic commands in total, and the details can be checked in "docs/basic_commands_evaluation.md". Below shows some examples and our evaluation criterion for basic commands. 
 
-| walk to the left for 10 steps| walk 10 steps, then run 10 steps to the right, and then jump 5 times|hurdle 5 times go forward for 10 blocks| 
+| walk to the left for 10 steps|run 10 steps to the right, and then jump 5 times|hurdle 5 times go forward for 10 blocks| 
 | -------------   | ------------- | ------------- |
 |Speech Recognized | Speech Recognized|Speech Recognized|
 |Parse Correctly| Parse Correctly|Parse Correctly|
@@ -49,7 +49,7 @@ We tested 50 basic commands in total, and the details can be checked in "docs/ba
 
 According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is, command parsing rate is, and successfully executed commands rate is. 
 
-####  Advanced Commands
+###  Advanced Commands
 We tested 50 advanced commands in total, and the details can be checked in "docs/advanced_commands_evaluation.md". Below shows some examples and our evaluation criterion for advanced commands. 
 
 | Find Iron| Find a pig and a sheep, and kill them |Find a pig and cook porkchop| Murder the farthest stallion with a blade | 
