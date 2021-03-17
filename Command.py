@@ -17,9 +17,9 @@ neuralcoref.add_to_pipe(nlp)
 
 class Command:
     filterWords = {'a','an','the', 'to', 'then', 'for', 'in', 'on', 'at', 'by'} #static class atribute
-    actions = [ 'jump', 'walk', 'crouch', 'run', 'find', 'kill', 'turn', 'switch', 'equip', 'go', 'break', 'cook']
+    actions = [ 'jump', 'walk', 'crouch', 'run', 'find', 'kill', 'turn', 'switch', 'equip', 'go', 'break', 'cook', 'use']
     entities = ['llama', 'cow', 'sheep', 'chicken', 'horse', 'pig']
-    food = ["mutton", "chicken", "porkchop", "beef", 'cow', 'sheep', 'chicken', 'pig']
+    food = ["mutton", "chicken", "porkchop", 'pork', "beef", 'cow', 'sheep', 'chicken', 'pig']
     blocks = ['coal ore', 'log', 'iron ore', 'lapis ore']
 
     #used a dict so similarity checks for a category of actions (keys) and then searches for specfic supported actions(values)
@@ -143,5 +143,6 @@ class Command:
     #find similarity (a probability) of word2 against word1 with orginal doc
     def similarity_words(self, w1, w2):
         doc = nlp(self.rawText)
+        #print("SIMILAIRTY TExt ->", self.rawText.replace(w1, w2))
         synonymDoc = nlp( self.rawText.replace(w1, w2))
         return synonymDoc.similarity(doc)

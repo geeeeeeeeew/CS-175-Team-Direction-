@@ -149,8 +149,8 @@ class Process:
             mostSimilarObj = None
             bestSimilarity = 0
             for obj in objects:
-                iRight = [w.lemma_ for w in obj.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
-                iLeft = [w.lemma_ for w in obj.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iRight = [w.text for w in obj.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iLeft = [w.text for w in obj.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
                 i = " ".join( iLeft +[obj.lemma_] + iRight)
                 for foo in command.entities + command.blocks:
                     similarity = command.similarity_words(i, foo)
@@ -173,8 +173,8 @@ class Process:
         if item:
             for i in item:
                 print(i)
-                iRight = [w.lemma_ for w in i.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
-                iLeft = [w.lemma_ for w in i.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iRight = [w.text for w in i.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iLeft = [w.text for w in i.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
                 print(iRight, iLeft)
                 foo = " ".join( iLeft +[i.text] + iRight)
 
@@ -206,8 +206,8 @@ class Process:
         if item:
             hotbarList = self.malmo.get_hotbarList()
             for i in item:
-                iRight = [w.lemma_ for w in i.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
-                iLeft = [w.lemma_ for w in i.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iRight = [w.text for w in i.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iLeft = [w.text for w in i.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
                 foo = " ".join( iLeft +[i.text] + iRight)
 
                 for item in hotbarList:
@@ -251,8 +251,8 @@ class Process:
             mostSimilarObj = None
             bestSimilarity = 0
             for obj in objects:
-                iRight = [w.lemma_ for w in obj.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
-                iLeft = [w.lemma_ for w in obj.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iRight = [w.text for w in obj.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iLeft = [w.text for w in obj.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
                 i = " ".join( iLeft +[obj.lemma_] + iRight)
                 for foo in command.entities + command.blocks:
                     similarity = command.similarity_words(i, foo)
@@ -271,14 +271,16 @@ class Process:
     def process_break(self, objList, command):
         objects = self.find_obj(objList, ['NOUN'])
         item = self.find_obj(objList, ['NOUN'], ['pobj']) # kill [entity] with [item]
-
+        times = self.parse_numerical(objList)
+        if times == None:
+            times = 1
         bestSimilarItem = None
         bestSimilarity = 0
         if item:
             hotbarList = self.malmo.get_hotbarList()
             for i in item:
-                iRight = [w.lemma_ for w in i.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
-                iLeft = [w.lemma_ for w in i.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iRight = [w.text for w in i.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iLeft = [w.text for w in i.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
                 foo = " ".join( iLeft +[i.text] + iRight)
 
                 for item in hotbarList:
@@ -293,8 +295,8 @@ class Process:
             mostSimilarObj = None
             bestSimilarity = 0
             for obj in objects:
-                iRight = [w.lemma_ for w in obj.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
-                iLeft = [w.lemma_ for w in obj.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iRight = [w.text for w in obj.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
+                iLeft = [w.text for w in obj.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
                 i = " ".join( iLeft +[obj.lemma_] + iRight)
                 for foo in command.blocks:
                     similarity = command.similarity_words(i, foo)
@@ -303,23 +305,28 @@ class Process:
                         bestSimilarity = similarity
                 print("obj->", mostSimilarObj)
                 mostSimilarObj = mostSimilarObj.replace(" ", "_")
-            self.malmo.break_block(mostSimilarObj, item = bestSimilarItem)
+            self.malmo.break_blocks(mostSimilarObj, item = bestSimilarItem, num = times)
         else:
             print("no object specified")
 
     def process_cook(self, objList, command):
+        print('cook')
+        times = self.parse_numerical(objList)
+        if times == None:
+            times = 1
         objects = self.find_obj(objList, ['NOUN'], ['dobj'])
         mostSimilarObj = None
         bestSimilarity = 0
         for obj in objects:
+            print(obj)
             for food in command.food:
-                similarity = command.similarity_words(obj.lemma_, food)
+                similarity = command.similarity_words(obj.text, food)
                 if similarity > bestSimilarity:
-                        mostSimilarObj = food
-                        bestSimilarity = similarity
+                    mostSimilarObj = food
+                    bestSimilarity = similarity
             print("obj->", mostSimilarObj)
             mostSimilarObj = mostSimilarObj.replace(" ", "_")
-        self.malmo.cook_food(mostSimilarObj)
+        self.malmo.cook(mostSimilarObj, times)
     
     #the basic flow is to iterate through all the dicts parseList contains
     #then process the objList ties to the verb
@@ -345,7 +352,7 @@ class Process:
                     self.process_break(objList, command)
                 elif verb == 'kill':
                     self.process_kill(objList, command)
-                elif verb == 'switch' or verb == 'equip':
+                elif verb == 'switch' or verb == 'equip' or verb == 'use':
                     self.process_switch(objList,command)
                 elif verb == 'cook':
                     self.process_cook(objList, command)

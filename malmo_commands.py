@@ -93,7 +93,7 @@ class SpeechToSteve():
                             <SimpleCraftCommands/>
                             <ChatCommands/>
                             <ObservationFromNearbyEntities>''' +\
-                                "<Range name='Entities' xrange='{}' yrange='{}' zrange='{}'/>".format(self.size, self.size, self.size) + \
+                                "<Range name='Entities' xrange='{}' yrange='{}' zrange='{}'/>".format(self.size*2, self.size, self.size*2) + \
                             '''</ObservationFromNearbyEntities>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
@@ -332,7 +332,13 @@ class SpeechToSteve():
                 previousDistance = distance
         else:
             self.agent_host.sendCommand('chat No ' + block + ' found near me!')
-
+    
+    def break_blocks(self, block, item, num):
+        for i in range(num):
+            time.sleep(1)
+            self.break_block(block, item)
+            time.sleep(1)
+        
     #helper function for find_entity
     def get_entityList(self, entity, direction = None):
         entities = self.get_worldstate('Entities')
@@ -590,12 +596,18 @@ class SpeechToSteve():
         world_state = self.agent_host.getWorldState()
         msg = world_state.observations[-1].text
         obs = json.loads(msg)
+        time.sleep(.1)
+        hotbar = self.get_hotbarList()
+        if requested in hotbar:
+            return True
+        time.sleep(.1)
         for i in range(0,39):
             key = 'InventorySlot_'+str(i)+'_item'
             if key in obs:
                 item = obs[key]
                 if item == requested:
                     return True
+        
         return False
 
     def cook_food(self, raw_meat):
@@ -622,7 +634,7 @@ class SpeechToSteve():
                 time.sleep(0.1)
                 self.agent_host.sendCommand("craft cooked_mutton")
 
-        elif raw_meat == "pig" or raw_meat == "porkchop":
+        elif raw_meat == "pig" or raw_meat == "porkchop" or raw_meat == 'pork':
             if self.checkInventoryForItem("porkchop"):
                 time.sleep(0.1)
                 self.agent_host.sendCommand('chat Cooking porkchops!')
@@ -685,11 +697,17 @@ class SpeechToSteve():
                 self.agent_host.sendCommand('chat Cooking chicken!')
                 time.sleep(0.1)
                 self.agent_host.sendCommand("craft cooked_chicken")
+
+    def cook(self, food, num = 1):
+        for i in range(num):
+            time.sleep(0.1)
+            self.cook_food(food)
+            time.sleep(0.1)
         
 
 if __name__ == "__main__":
     test = SpeechToSteve({})
     time.sleep(0.5)
-    #test.break_block('iron_ore', 'diamond_pickaxe')
+    test.break_blocks('iron_ore', 'diamond_pickaxe',2)
     #test.print_inventory()
     test.cook_food('chicken')
