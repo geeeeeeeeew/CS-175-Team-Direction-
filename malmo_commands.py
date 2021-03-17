@@ -546,8 +546,90 @@ class SpeechToSteve():
             self.agent_host.sendCommand("turn 1")
             time.sleep(0.5)
             self.agent_host.sendCommand("turn 0")
+
+    def print_inventory(self):
+        world_state = self.agent_host.getWorldState()
+        msg = world_state.observations[-1].text
+        #print("msg...........",msg)
+        obs = json.loads(msg)
+        for i in range(0,9):
+            key = 'InventorySlot_'+str(i)+'_item'
+            var_key = 'InventorySlot_'+str(i)+'_variant'
+            col_key = 'InventorySlot_'+str(i)+'_colour'
+            if key in obs:
+                item = obs[key]
+                print(str(i) + " ------ " + item, end=' ')
+            else:
+                print(str(i) + " -- ", end=' ')
+            if var_key in obs:
+                print(obs[var_key], end=' ')
+            if col_key in obs:
+                print(obs[col_key], end=' ')
+            print()
     
+    def checkFuelPosition(self):
+    #Make sure our coal, if we have any, is in slot 0
+    # (We need to do this because the furnace crafting commands - cooking the potato and the rabbit -
+    # take the first available item of fuel in the inventory. If this isn't the coal, it could end up burning the wood
+    # that we need for making the bowl.)
+        world_state = self.agent_host.getWorldState()
+        msg = world_state.observations[-1].text
+        obs = json.loads(msg)
+        for i in range(1,39):
+            key = 'InventorySlot_'+str(i)+'_item'
+            if key in obs:
+                item = obs[key]
+                if item == 'coal':
+                    self.agent_host.sendCommand("swapInventoryItems 0 " + str(i))
+                    return
+
+    # entities = ['llama', 'cow', 'sheep', 'chicken', 'horse', 'pig']
+    # namespace = ["mutton", "chicken", "porkchop", "beef"]
+    # so we can only craft cooked meat
+
+    def checkInventoryForItem(self, requested):
+        world_state = self.agent_host.getWorldState()
+        msg = world_state.observations[-1].text
+        obs = json.loads(msg)
+        for i in range(0,39):
+            key = 'InventorySlot_'+str(i)+'_item'
+            if key in obs:
+                item = obs[key]
+                if item == requested:
+                    return True
+        return False
+
+    def cook_food(self, raw_meat):
+        if raw_meat == "mutton" or raw_meat == "sheep":
+            if checkInventoryForItem(ob, "mutton"):
+                print("craft cooked_mutton")
+                self.agent_host.sendCommand("craft cooked_mutton")
+                time.sleep(1)
+            else:
+                print("Ingredient Not Found...")
+        elif raw_meat == "pig" or raw_meat == "porkchop":
+            if checkInventoryForItem(ob, "porkchop"):
+                print("craft cooked_porkchop")
+                self.agent_host.sendCommand("craft cooked_porkchop")
+                time.sleep(1)
+            else:
+                print("Ingredient Not Found...")
+        elif raw_meat == "beef" or raw_meat == "steak":
+            if checkInventoryForItem(ob, "beef"):
+                print("craft cooked_beef")
+                self.agent_host.sendCommand("craft cooked_beef")
+                time.sleep(1)
+            print("Ingredient Not Found...")
+        if raw_meat == "chicken":
+            if checkInventoryForItem(ob, "chicken"):
+                print("craft cooked_chicken")
+                self.agent_host.sendCommand("craft cooked_chicken")
+                time.sleep(1)
+            print("Ingredient Not Found...")
+        
+
 if __name__ == "__main__":
     test = SpeechToSteve({})
     time.sleep(0.5)
-    test.break_block('iron_ore', 'diamond_pickaxe')
+    #test.break_block('iron_ore', 'diamond_pickaxe')
+    test.print_inventory()
