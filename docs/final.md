@@ -39,7 +39,7 @@ We intend to evaluate our success qualitatively by visually checking if the agen
 We intend to evaluate our success quantitatively by measuring the accuracy of our voice commands and command completion rate. In other words, we will calculate the proportion of successfully recognized voice commands to the total number of voice commands given, and proportion of correctly executed commands to the total successfully recognized voice commands. (e.g. the agent actually moves north when given the command to go north, the agent can recognize objects in Minecraft successfully). 
 
 ###  Basic Commands
-We tested 50 basic commands in total, and the details can be checked in "docs/basic_commands_evaluation.md". Below shows some examples and our evaluation criterion for basic commands. 
+We set 25 basic commands in total with each tested 10 times, and the details can be checked in "docs/basic_commands_eval.txt". According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is, command parsing rate is, and successfully executed commands rate is. Below shows some examples and our evaluation criterion for basic commands. 
 
 | walk to the left for 10 steps|run 10 steps to the right, and then jump 5 times|hurdle 5 times go forward for 10 blocks| 
 | -------------   | ------------- | ------------- |
@@ -47,18 +47,15 @@ We tested 50 basic commands in total, and the details can be checked in "docs/ba
 |Parse Correctly| Parse Correctly|Parse Correctly|
 |Execute Successfully| Execute Successfully|Execute Successfully|
 
-According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is, command parsing rate is, and successfully executed commands rate is. 
 
 ###  Advanced Commands
-We tested 50 advanced commands in total, and the details can be checked in "docs/advanced_commands_evaluation.md". Below shows some examples and our evaluation criterion for advanced commands. 
+We set 25 advanced commands in total with each tested 10 times, and the details can be checked in "docs/advanced_commands_eval.txt". According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is, command parsing rate is, and successfully executed commands rate is.  Below shows some examples and our evaluation criterion for advanced commands. 
 
 | Find Iron| Find a pig and a sheep, and kill them |Find a pig and cook porkchop| Murder the farthest stallion with a blade | 
 | -------------   | ------------- | ------------- | ------------- |
 |Speech Recognized | Speech Recognized|Speech Recognized| Speech Recognized|
 |Parse Correctly| Parse Correctly|Parse Correctly|Parse Correctly|
 |Execute 1/1 action Successfully| Execute 4/4 actions Successfully|Execute 2/2 Successfully|Execute 1/1 Successfully|
-
-According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is, command parsing rate is, and successfully executed commands rate is. 
 
 ## Resources Used
 - [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)\
