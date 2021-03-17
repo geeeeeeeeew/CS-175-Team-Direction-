@@ -159,10 +159,10 @@ class Process:
                         bestSimilarity = similarity
                 print("obj->", mostSimilarObj)
                 mostSimilarObj = mostSimilarObj.replace(" ", "_")
-                if mostSimilarObj in command.entities:
-                    self.malmo.find_entity(mostSimilarObj, times, dis = mostSimilarDist, direction = direction)
-                else:
-                    self.malmo.find_block(mostSimilarObj)
+            if mostSimilarObj in command.entities:
+                self.malmo.find_entity(mostSimilarObj, times, dis = mostSimilarDist, direction = direction)
+            else:
+                self.malmo.find_block(mostSimilarObj)
         else:
             print('no entity specified')
 
@@ -311,20 +311,21 @@ class Process:
 
     def process_cook(self, objList, command):
         print('cook')
+        #print(objList)
         times = self.parse_numerical(objList)
         if times == None:
             times = 1
-        objects = self.find_obj(objList, ['NOUN'], ['dobj'])
+        objects = self.find_obj(objList, ['NOUN'], ['dobj', 'conj'])
         mostSimilarObj = None
         bestSimilarity = 0
         for obj in objects:
-            print(obj)
+            #print("OBJLIST->", obj)
             for food in command.food:
                 similarity = command.similarity_words(obj.text, food)
                 if similarity > bestSimilarity:
                     mostSimilarObj = food
                     bestSimilarity = similarity
-            print("obj->", mostSimilarObj)
+            #print("obj->", mostSimilarObj)
             mostSimilarObj = mostSimilarObj.replace(" ", "_")
         self.malmo.cook(mostSimilarObj, times)
     

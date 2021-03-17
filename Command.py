@@ -36,6 +36,7 @@ class Command:
         self.rawText = " ".join(wordList)
         self.doc = nlp(self.rawText)
         if self.doc._.has_coref:
+            self.rawText = self.doc._.coref_resolved
             self.doc = nlp(self.doc._.coref_resolved)
     
     #helper function for check_adj()

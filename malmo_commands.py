@@ -429,6 +429,7 @@ class SpeechToSteve():
                     print("FOUND", num - count, "UNIQUE ENTITIES")
                     seenEntities.append(targetEntity['id'])
                     break
+            print("count->",count)
             entityList = [i for i in self.get_entityList(entity, direction) if not i[0]['id'] in seenEntities] #get sorted entity list
         else:
             if count > 0:
