@@ -1,0 +1,23 @@
+find iron
+find log
+find lapis
+find coal
+find a sheep
+find a horse
+find the farthest sheep
+find a cow and kill it
+find a cow, kill it and cook it
+find a cow, sheep and cook them
+find a cow, sheep and kill them with a diamond sword
+cook mutton
+cook beef
+cook porkchop, beef and mutton
+break a tree 
+break the nearest coal
+break the farthest coal
+murder the farthest stallion with a blade
+switch to diamond_shovel, find a horse on the left and then run backwards 20 steps
+go to the closest cow on the right then break two trees then kill a sheep with shovel, then equip a diamond sword then run 10 steps to the left then cook a chicken and then jump 10 times
+
+
+# Note: not yet completed. 
