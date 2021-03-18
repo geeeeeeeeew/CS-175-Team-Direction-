@@ -1,4 +1,3 @@
-#from basic_movement import BasicMovement
 from malmo_commands import SpeechToSteve
 from Command import Command
 import time
@@ -116,13 +115,10 @@ class Process:
 
         #check for direction modifier
         direction = None
-        for d in directionList:
-            if d.lemma_ == "left":
-                direction = "right"
-                break
-            elif d.lemma_ == "right":
-                direction = "right"
-                break
+        if self.check_tokList(directionList, "left"):
+            direction = "left"
+        elif self.check_tokList(directionList, "right"):
+            direction = "right"
         
         mostSimilarDist = 0 #can be either 0 or -1, 0 for closest, -1 for farthest. Default to 0 for now
         bestSimilarity = 0
@@ -169,18 +165,15 @@ class Process:
     def process_switch(self, objList, command):
         hotbarList = self.malmo.get_hotbarList()
         item = self.find_obj(objList, ['NOUN'])
-        #modifier = self.find_obj(objList, ['ADJ', 'ADV', ])
         if item:
             for i in item:
-                print(i)
                 iRight = [w.text for w in i.rights if w.pos_ == 'ADJ' or w.dep_ == 'compound']
                 iLeft = [w.text for w in i.lefts if w.pos_ == 'ADJ' or w.dep_ == 'compound']
-                print(iRight, iLeft)
                 foo = " ".join( iLeft +[i.text] + iRight)
 
                 bestSimilarItem = None
                 bestSimilarity = 0
-                print(hotbarList)
+
                 for item in hotbarList:
                     similarity = command.similarity_words(foo, item.replace("_", " "))
                     print(similarity)
@@ -219,13 +212,10 @@ class Process:
             
         #check for direction modifier
         direction = None
-        for d in directionList:
-            if d.lemma_ == "left":
-                direction = "right"
-                break
-            elif d.lemma_ == "right":
-                direction = "right"
-                break
+        if self.check_tokList(directionList, "left"):
+            direction = "left"
+        elif self.check_tokList(directionList, "right"):
+            direction = "right"
         
         mostSimilarDist = 0 #can be either 0 or -1, 0 for closest, -1 for farthest. Default to 0 for now
         bestSimilarity = 0
@@ -311,7 +301,6 @@ class Process:
 
     def process_cook(self, objList, command):
         print('cook')
-        #print(objList)
         times = self.parse_numerical(objList)
         if times == None:
             times = 1
@@ -319,19 +308,17 @@ class Process:
         mostSimilarObj = None
         bestSimilarity = 0
         for obj in objects:
-            #print("OBJLIST->", obj)
             for food in command.food:
                 similarity = command.similarity_words(obj.text, food)
                 if similarity > bestSimilarity:
                     mostSimilarObj = food
                     bestSimilarity = similarity
-            #print("obj->", mostSimilarObj)
             mostSimilarObj = mostSimilarObj.replace(" ", "_")
         self.malmo.cook(mostSimilarObj, times)
     
     #the basic flow is to iterate through all the dicts parseList contains
-    #then process the objList ties to the verb
-    #depending on the verb, process the objlist differently
+    #then process the objList tied to the verbs
+    #depending on the verb, process the objList differently
     def process_command(self, command):
         parseList = command.parse()
         for c in parseList:
