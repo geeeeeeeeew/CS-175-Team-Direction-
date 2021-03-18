@@ -43,7 +43,14 @@ The next step in parsing the input from the user is to extract information and c
 ### spaCy
 <img src="spacy.png" alt="Visualization of spaCy" class="inline" width = "720" height="836"/>
 
-The spaCy library provides 
+The spaCy library provides us a way to quickly and accurately tokenize strings, effectively allowing us to convert strings into information that the agent can "understand." spaCy works by utilizing **pipelines.** 
+
+#### spaCy Pipeline
+<img src="pipeline.png" alt="Visualization of spaCy pipeline" class="inline" width = "720" height="836"/>
+
+Once we feed the string into the pipeline, spaCy will parse the string into tokens, and then tag each token with various information that spaCy believes is relevant to each token. It then returns a Doc object, which is essentially an array of all the tokens and their contextual information (e.g. Parts of Speech, relationships with other tokens). spaCy has conveniently provided various pipeline models that are already trained. Each model is trained with various amounts of training data, and learns to make predictions on a token's contextual information based on the model's current weight values. The model learns using **backpropagation,** calculating a gradient of the loss function to calculate the gradient of the model's weights.
+
+<img src="pipetrain.png" alt="Visualization of spaCy pipeline training" class="inline" width = "720" height="836"/>
 
 ### NeuralCoref
 <img src="displacy.PNG" alt="Visualization of NeuralCoref" class="inline"/>
