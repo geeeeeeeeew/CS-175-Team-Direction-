@@ -52,10 +52,18 @@ Once we feed the string into the pipeline, spaCy will parse the string into toke
 
 <img src="pipetrain.png" alt="Visualization of spaCy pipeline training" class="inline"/>
 
+### Too Many Pipes!
+
+Although spaCy provides a wide variety of trained pipelines, each one has their one benefits and drawbacks. There are multiple pipelines for each language, as well as varying degrees of training data inputted for each pipeline. For example, spaCy has the Small, Medium, and Large English pipeline models. As with all learners, there is a fine line between overfitting and underfitting, and using too much training data can be harmful for overall performance. The Large English pipeline is also takes much longer to load and tokenize strings, having a file size of 742 MB, in comparison to the 44 MB file size of the Medium English pipeline. The Small English pipeline was discarded almost immediately after our initial tests: we discovered that it could not even tokenize simple phrases (e.g. "walk 5 blocks") most of the time. The Medium English pipeline was used for the majority of the project, but we eventually discarded it in favor of the Large English pipeline after wanting to implement more advanced commands for our agent.
+
+One of the major advantages of the large model over the medium model is that it is able to more accurately recognize synonyms. We wanted to implement synonym checkers for Speech-To-Steve, where saying "sprint 5 blocks to the right" would mean the same thing as "run 5 blocks to the right." Although the medium model was able to have some success with synonym checking, it was unable to perform to the standards we wanted, and failed to recognize synonyms more often that it succeeded.
+
+Overfitting is definitely a drawback from utilizing the large model. There are cases where similar commands such as "crouch" and "jump" are processed into the same command, which is an example of the model aggressively trying to recognize synonyms. The large model also took a lot longer to load, and took a considerable longer period of time to tokenize strings when compared to the medium model. However, the large model allowed us to implement directional commands (e.g "find a pig to the left") and provided us with a more extensive word base for synonym checking. We felt that the benefits outweighed the disadvantages, and decided to use the large pipeline model for our final implementation.
+
 ### NeuralCoref
 <img src="displacy.PNG" alt="Visualization of NeuralCoref" class="inline"/>
 
-To accomplish tokenization, we decided to utilize the spaCy and NeuralCoref libraries. sp
+NeuralCoref is
 
 ## Evaluation
 We will evaluate the success of our project based on the complexity of the commands we can implement accurately and how well the agent performs tasks. There are different tiers of difficulty for commands: “Find a sheep” is much easier to implement than “Find a sheep and kill it with diamond sword, then cook it”. We are aiming to implement commands that are pretty complex and interact with the environment (e.g. “break a coal block”), with a moonshot case being extremely complex commands that need contextual understanding (e.g. “enter the third house on the right”).
