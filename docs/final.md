@@ -88,7 +88,10 @@ We intend to evaluate our success qualitatively by visually checking if the agen
 We intend to evaluate our success quantitatively by measuring the accuracy of our voice commands and command completion rate. In other words, we will calculate the proportion of successfully recognized voice commands to the total number of voice commands given, and proportion of correctly executed commands to the total successfully recognized voice commands. (e.g. the agent actually moves north when given the command to go north, the agent can recognize objects in Minecraft successfully). 
 
 <img src="equation1.png" class="inline" width = "500"/>
+
 Since commands consist of different number of actions, each with different levels of difficulties, we decided to compute the average weighted accuracy mainly depends on the nubmer of actions per command. (i.e "find/kill a sheep (with/without tools)" has 1 action; "jump 10 times" has 1 action; "break 5 trees" has 5 actions since the agent doesn't break 5 trees at a time)
+
+<img src="equation2.png" alt=" " class="inline" width = "600"/>
 
 
 ###  Basic Commands
