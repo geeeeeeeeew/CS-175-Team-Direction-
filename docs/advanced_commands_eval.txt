@@ -12,12 +12,18 @@ find a cow, sheep and kill them with a diamond sword
 cook mutton
 cook beef
 cook porkchop, beef and mutton
+craft porkchop, chicken and a steak
 break a tree 
 break the nearest coal
 break the farthest coal
+destroy two coal blocks, and find the nearest chicken
 murder the farthest stallion with a blade
+switch to diamond sword and kill the nearest chicken with it
+find a horse, then walk towards 5 steps, then craft a chicken
 switch to diamond_shovel, find a horse on the left and then run backwards 20 steps
+crouch down 3 times, run forward 10 steps and break five trees on the left, and equip a diamond axe
 go to the closest cow on the right then break two trees then kill a sheep with shovel, then equip a diamond sword then run 10 steps to the left then cook a chicken and then jump 10 times
+
 
 
 # Note: not yet completed. 
