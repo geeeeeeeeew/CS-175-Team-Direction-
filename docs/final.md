@@ -41,7 +41,7 @@ Essentially, the Google Speech Recognition API will break down an audio file int
 The next step in parsing the input from the user is to extract information and context from the string, in order to figure out what the user wants the agent to do in Malmo. This requires us to once again utilize natural langage processing. In this step, however, we are focused on **tokenization**. Tokenization is the process of breaking down the string into separate sections called tokens, which can be then passed on for further parsing. For Speech-To-Steve, tokenization will break down the string returned by the Google Speech Recognition API into individual words. Once we have the individual tokens, we can then further categorize them to provide context for the agent. For example, we can differentiate between parts of speech (e.g. adjectives, nouns, verbs) and the relationship between each token (e.g. recognizing that "red" refers to "apple" in the phrase "the red apple"). To accomplish tokenization, we decided to utilize the spaCy and NeuralCoref libraries.
 
 ### spaCy
-<img src="spacy.png" alt="Visualization of spaCy" class="inline" height=2000/>
+<img src="spacy.png" alt="Visualization of spaCy" class="inline" width = "360" height="418"/>
 
 The spaCy library provides 
 
