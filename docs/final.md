@@ -63,7 +63,26 @@ Overfitting is definitely a drawback from utilizing the large model. There are c
 ### NeuralCoref
 <img src="neuralcoref.png" alt="Visualization of NeuralCoref" class="inline"/>
 
-The NeuralCoref libary was designed to be a pipeline extension for spaCy, and aimed to help resolve **coreference** clusters using a neural network. A **coreference** is when two or more expressions in text refer to the same noun. For example, in the phrase "Steve says he is hungry," both "Steve" and "he" refer to the same noun. Using NeuralCoref allowed us to improve on spaCy's pipeline and further recognize contextual information that may have been missed otherwise. After adding NeuralCoref's pre-trained model to Speech-To-Steve, we noticed that the contextual information for each token and identified relationships between each token had significantly improved. Due to NeuralCoref, we were able to implement commands with countless variations, such as block-related commands like "find a diamond block" or "find a wood block." NeualCoref was able to recognize that "diamond" and "wood" were adjectives being applied to the token "block," and greatly expanded the possible commands we could implement. We were also able to combine multiple commands together, because coreference clusters were resolved through NeuralCoref. For example,
+The NeuralCoref libary was designed to be a pipeline extension for spaCy, and aimed to help resolve **coreference** clusters using a neural network. A **coreference** is when two or more expressions in text refer to the same noun. For example, in the phrase "Steve says he is hungry," both "Steve" and "he" refer to the same noun. Using NeuralCoref allowed us to improve on spaCy's pipeline and further recognize contextual information that may have been missed otherwise. After adding NeuralCoref's pre-trained model to Speech-To-Steve, we noticed that the contextual information for each token and identified relationships between each token had significantly improved. Due to NeuralCoref, we were able to implement commands with countless variations, such as block-related commands like "find a diamond block" or "find a wood block." NeualCoref was able to recognize that "diamond" and "wood" were adjectives being applied to the token "block," and greatly expanded the possible commands we could implement. We were also able to combine multiple commands together (e.g. "Walk 5 blocks to the left, then find a coal ore block and mine it"), because coreference clusters were resolved through NeuralCoref.
+
+### Miscellaneous Parsing
+
+There are certain words that are very common and do not contain much information (also known as stop words). We filtered out common stop words (e.g. "a", "the", "then") before processing the strings to reduce noise during parsing. We also had a list of commands that we have implemented, a list of interactable entities (e.g. "cow", "sheep", "chicken"), and a list of block types (e.g. "coal ore", "iron ore", "log"). After tokenizing the string that was created from parsing audio input, we then compare specific tokens based on their assigned part of speech (e.g. noun, adjective) to these lists. We also run a similarity checker for these tokens to identify synonyms. This information is stored in a "Command" object we have implemented, which also contains information on specific caveats (e.g. directional restrictions, numerical values, what tools to use) that the user has given. Once this is done, we pass this Command object to the processor and are ready to control the agent in Malmo.
+
+### Malmo Implementation
+
+After parsing everything, it is finally time to actually perform the user's command in Malmo. There is no machine learning involved for the Malmo portion of Speech-To-Steve, as the processor simply calls the related function and its corresponding parameters based on the passed Command object. The Malmo portion extensively uses built-in functionalities that generate the world state of entities and blocks to implement more complex commands. For directional commands (e.g. "kill the cow to the left"), trigonometry combined with the player's yaw is used to help determine direction.
+
+### Pseudocode Summary
+
+Here is a brief summary of what Speech-To-Steve does in basic pseudocode.
+
+1. Use PyAudio to capture audio input from the user
+2. Convert audio into a string using the Google Speech Recognition API
+3. Use spaCy and NeuralCoref to tokenize the string
+4. Filter out stop words and check for synonyms
+5. Identify the specific command and parameters given by the user
+6. Call the related function and pass the parameters to peform the user's command in Malmo
 
 ## Evaluation
 We will evaluate the success of our project based on the complexity of the commands we can implement accurately and how well the agent performs tasks. There are different tiers of difficulty for commands: “Find a sheep” is much easier to implement than “Find a sheep and kill it with diamond sword, then cook it”. We are aiming to implement commands that are pretty complex and interact with the environment (e.g. “break a coal block”), with a moonshot case being extremely complex commands that need contextual understanding (e.g. “enter the third house on the right”).
