@@ -119,19 +119,19 @@ We set 25 advanced commands in total with each tested 10 times, and the details 
 Library for performing speech recognition
 - [PyAudio](https://pypi.org/project/PyAudio/)\
 Record audio input from microphone
-- [Google Speech Recognition API](https://cloud.google.com/speech-to-text)
+- [Google Speech Recognition API](https://cloud.google.com/speech-to-text)\
 Convert audio into text
 - [spaCy](https://spacy.io/usage/spacy-10z)\
 Information extraction and natural language understanding
 - [NeuralCoref](https://github.com/huggingface/neuralcoref/pulls)\
 Pipeline extension for spaCy 2.1+ which annotates and resolves coreference clusters using a neural network
-- [craft_work.py](https://github.com/microsoft/malmo/blob/master/Malmo/samples/Python_examples/craft_work.py)
+- [craft_work.py](https://github.com/microsoft/malmo/blob/master/Malmo/samples/Python_examples/craft_work.py)\
 Malmo tutorial file used as reference for some crafting-related commands
 
 ### Relevant Information/Images Used
-- [Speech Recognition Systems](https://heartbeat.fritz.ai/the-3-deep-learning-frameworks-for-end-to-end-speech-recognition-that-power-your-devices-37b891ddc380)
+- [Speech Recognition Systems](https://heartbeat.fritz.ai/the-3-deep-learning-frameworks-for-end-to-end-speech-recognition-that-power-your-devices-37b891ddc380)\
 Explanation of how basic speech-to-text models work and visualization of these models
-- [spaCy Documentation](https://spacy.io/usage)
+- [spaCy Documentation](https://spacy.io/usage)\
 Detailed explanation of how spaCy works and its usage, as well as various diagrams
--[NeuralCoreF Documentation](https://medium.com/huggingface/state-of-the-art-neural-coreference-resolution-for-chatbots-3302365dcf30)
+-[NeuralCoreF Documentation](https://medium.com/huggingface/state-of-the-art-neural-coreference-resolution-for-chatbots-3302365dcf30)\
 Detailed explanation of how NeuralCoref works and its usage, as well as various diagrams.
