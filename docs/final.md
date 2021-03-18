@@ -34,8 +34,8 @@ Essentially, the Google Speech Recognition API will break down an audio file int
 
 The next step in parsing the input from the user is to extract information and context from the string, in order to figure out what the user wants the agent to do in Malmo. This requires us to once again utilize natural langage processing. In this step, however, we are focused on **tokenization**. Tokenization is the process of breaking down the string into separate sections called tokens, which can be then passed on for further parsing. For Speech-To-Steve, tokenization will break down the string returned by the Google Speech Recognition API into individual words. Once we have the individual tokens, we can then further categorize them to provide context for the agent. For example, we can differentiate between parts of speech (e.g. adjectives, nouns, verbs) and the relationship between each token (e.g. recognizing that "red" refers to "apple" in the phrase "the red apple"). To accomplish tokenization, we decided to utilize the spaCy and NeuralCoref libraries.
 
-### spaCy
-<img src="spacy.png" alt="Visualization of spaCy" class="inline" width = "720" height="836"/>
+
+<img src="spacy.png" alt="Visualization of spaCy" class="inline" width = "600"/>
 
 The spaCy library provides us a way to quickly and accurately tokenize strings, effectively allowing us to convert strings into information that the agent can "understand." spaCy works by utilizing **pipelines.** 
 
@@ -88,12 +88,12 @@ We intend to evaluate our success qualitatively by visually checking if the agen
 We intend to evaluate our success quantitatively by measuring the accuracy of our voice commands and command completion rate. In other words, we will calculate the proportion of successfully recognized voice commands to the total number of voice commands given, and proportion of correctly executed commands to the total successfully recognized voice commands. (e.g. the agent actually moves north when given the command to go north, the agent can recognize objects in Minecraft successfully). 
 
 ###  Basic Commands
-We set 25 basic commands in total with each tested 10 times, and the details can be checked in "docs/basic_commands_eval.txt". According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is 95.2%, command parsing rate is 95.2%, and successfully executed commands rate is 95.2%. Below shows some examples and our evaluation criterion for basic commands. 
+We set 25 basic commands in total with each tested 10 times, and the details can be checked in "docs/basic_commands_eval.txt". According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is 95.20%, command parsing rate is 95.20%, and successfully executed commands rate is 95.20%. Below shows some examples and our evaluation criterion for basic commands. 
 
 <img src="basic_commands.PNG" alt="Basic Commands" class="inline" width = "800"/>
 
 ###  Advanced Commands
-We set 25 advanced commands in total with each tested 10 times, and the details can be checked in "docs/advanced_commands_eval.txt". According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is, command parsing rate is, and successfully executed commands rate is.  Below shows some examples and our evaluation criterion for advanced commands. 
+We set 25 advanced commands in total with each tested 10 times, and the details can be checked in "docs/advanced_commands_eval.txt". According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is 86.80%, command parsing rate is 88.00%, and successfully executed commands rate is 91.02%.  Below shows some examples and our evaluation criterion for advanced commands. 
 
 <img src="advanced_commands.PNG" alt="Advanced Commands" class="inline" width = "800"/>
 
