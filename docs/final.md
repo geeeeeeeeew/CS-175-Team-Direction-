@@ -61,7 +61,7 @@ One of the major advantages of the large model over the medium model is that it 
 Overfitting is definitely a drawback from utilizing the large model. There are cases where similar commands such as "crouch" and "jump" are processed into the same command, which is an example of the model aggressively trying to recognize synonyms. The large model also took a lot longer to load, and took a considerable longer period of time to tokenize strings when compared to the medium model. However, the large model allowed us to implement directional commands (e.g "find a pig to the left") and provided us with a more extensive word base for synonym checking. We felt that the benefits outweighed the disadvantages, and decided to use the large pipeline model for our final implementation.
 
 ### NeuralCoref
-<img src="neuralcoref.png" alt="Visualization of NeuralCoref" class="inline"/>
+<img src="neuralcoref.png" alt="Visualization of NeuralCoref" class="inline" width="1325.25" height="243"/>
 
 The NeuralCoref libary was designed to be a pipeline extension for spaCy, and aimed to help resolve **coreference** clusters using a neural network. A **coreference** is when two or more expressions in text refer to the same noun. For example, in the phrase "Steve says he is hungry," both "Steve" and "he" refer to the same noun. Using NeuralCoref allowed us to improve on spaCy's pipeline and further recognize contextual information that may have been missed otherwise. After adding NeuralCoref's pre-trained model to Speech-To-Steve, we noticed that the contextual information for each token and identified relationships between each token had significantly improved. Due to NeuralCoref, we were able to implement commands with countless variations, such as block-related commands like "find a diamond block" or "find a wood block." NeualCoref was able to recognize that "diamond" and "wood" were adjectives being applied to the token "block," and greatly expanded the possible commands we could implement. We were also able to combine multiple commands together (e.g. "Walk 5 blocks to the left, then find a coal ore block and mine it"), because coreference clusters were resolved through NeuralCoref.
 
@@ -133,5 +133,5 @@ Malmo tutorial file used as reference for some crafting-related commands
 Explanation of how basic speech-to-text models work and visualization of these models
 - [spaCy Documentation](https://spacy.io/usage)\
 Detailed explanation of how spaCy works and its usage, as well as various diagrams
--[NeuralCoreF Documentation](https://medium.com/huggingface/state-of-the-art-neural-coreference-resolution-for-chatbots-3302365dcf30)\
+- [NeuralCoreF Documentation](https://medium.com/huggingface/state-of-the-art-neural-coreference-resolution-for-chatbots-3302365dcf30)\
 Detailed explanation of how NeuralCoref works and its usage, as well as various diagrams.
