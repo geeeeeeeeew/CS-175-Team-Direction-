@@ -94,7 +94,7 @@ We intend to evaluate our success qualitatively by visually checking if the agen
 We intend to evaluate our success quantitatively by measuring the accuracy of our voice commands and command completion rate. In other words, we will calculate the proportion of successfully recognized voice commands to the total number of voice commands given, and proportion of correctly executed commands to the total successfully recognized voice commands. (e.g. the agent actually moves north when given the command to go north, the agent can recognize objects in Minecraft successfully). 
 
 ###  Basic Commands
-We set 25 basic commands in total with each tested 10 times, and the details can be checked in "docs/basic_commands_eval.txt". According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is, command parsing rate is, and successfully executed commands rate is. Below shows some examples and our evaluation criterion for basic commands. 
+We set 25 basic commands in total with each tested 10 times, and the details can be checked in "docs/basic_commands_eval.txt". According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is 95.2%, command parsing rate is 95.2%, and successfully executed commands rate is 95.2%. Below shows some examples and our evaluation criterion for basic commands. 
 
 | walk to the left for 10 steps|run 10 steps to the right, and then jump 5 times|hurdle 5 times go forward for 10 blocks| 
 | -------------   | ------------- | ------------- |
