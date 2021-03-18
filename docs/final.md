@@ -20,14 +20,8 @@ The main idea of our project is using Python to implement a way for the user to 
 
 #### Implemented Commands
 
-| Basic | Advanced| 
-| -------------   | ------------- |
-|Turn left or right  | Find blocks /entities|
-|Walk/run in a direction| Kill entities|
-|Crouch| Break blocks |
-|Jump| Cook food|
-|| Swtich item|
-|| Combination of basic and advanced commands|
+<img src="implemented_commands.PNG" alt="Implemented Commands" class="inline" width = "500"/>
+
 
 ## Approaches
 
@@ -96,21 +90,12 @@ We intend to evaluate our success quantitatively by measuring the accuracy of ou
 ###  Basic Commands
 We set 25 basic commands in total with each tested 10 times, and the details can be checked in "docs/basic_commands_eval.txt". According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is 95.2%, command parsing rate is 95.2%, and successfully executed commands rate is 95.2%. Below shows some examples and our evaluation criterion for basic commands. 
 
-| walk to the left for 10 steps|run 10 steps to the right, and then jump 5 times|hurdle 5 times go forward for 10 blocks| 
-| -------------   | ------------- | ------------- |
-|Speech Recognized | Speech Recognized|Speech Recognized|
-|Parse Correctly| Parse Correctly|Parse Correctly|
-|Execute Successfully| Execute Successfully|Execute Successfully|
-
+<img src="basic_commands.PNG" alt="Basic Commands" class="inline" width = "800"/>
 
 ###  Advanced Commands
 We set 25 advanced commands in total with each tested 10 times, and the details can be checked in "docs/advanced_commands_eval.txt". According to the evaluation table in 'basic_commands_evaluation.md', we derived that speech recognition rate is, command parsing rate is, and successfully executed commands rate is.  Below shows some examples and our evaluation criterion for advanced commands. 
 
-| Find Iron| Find a pig and a sheep, and kill them |Find a pig and cook porkchop| Murder the farthest stallion with a blade | 
-| -------------   | ------------- | ------------- | ------------- |
-|Speech Recognized | Speech Recognized|Speech Recognized| Speech Recognized|
-|Parse Correctly| Parse Correctly|Parse Correctly|Parse Correctly|
-|Execute 1/1 action Successfully| Execute 4/4 actions Successfully|Execute 2/2 Successfully|Execute 1/1 Successfully|
+<img src="advanced_commands.PNG" alt="Advanced Commands" class="inline" width = "800"/>
 
 ## References
 
